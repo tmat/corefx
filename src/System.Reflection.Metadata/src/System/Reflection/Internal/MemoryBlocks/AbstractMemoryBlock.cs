@@ -24,6 +24,11 @@ namespace System.Reflection.Internal
             get;
         }
 
+        public unsafe MemoryBlock GetSlice()
+        {
+            return new MemoryBlock(Pointer, Size);
+        }
+
         /// <summary>
         /// Returns the content of the memory block. 
         /// </summary>

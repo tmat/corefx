@@ -208,6 +208,12 @@
     <Compile Include="System\Reflection\Metadata\TypeLayout.cs" />
     <Compile Include="System\Reflection\Metadata\TypeReference.cs" />
     <Compile Include="System\Reflection\Metadata\TypeSpecification.cs" />
+    <Compile Include="System\Reflection\Pdb\PdbHeaders.cs" />
+    <Compile Include="System\Reflection\Pdb\PdbReader.cs" />
+    <Compile Include="System\Reflection\Pdb\PdbDataStream.cs" />
+    <Compile Include="System\Reflection\Pdb\PdbStreamDirectory.cs" />
+    <Compile Include="System\Reflection\Pdb\PdbUtilities.cs" />
+    <Compile Include="System\Reflection\Pdb\PdbWriter.cs" />
     <Compile Include="System\Reflection\PortableExecutable\CoffHeader.cs" />
     <Compile Include="System\Reflection\PortableExecutable\CorFlags.cs" />
     <Compile Include="System\Reflection\PortableExecutable\CorHeader.cs" />

@@ -32,6 +32,11 @@ namespace TestResources
         public static readonly byte[] NamespaceTests = ResourceHelper.GetResource("Namespace.NamespaceTests.dll");
     }
 
+    internal static class Pdb
+    {
+        public static readonly byte[] Minimal = ResourceHelper.GetResource("Pdb.Minimal.pdbx");
+    }
+
     internal static class ResourceHelper
     {
         public static byte[] GetResource(string name)

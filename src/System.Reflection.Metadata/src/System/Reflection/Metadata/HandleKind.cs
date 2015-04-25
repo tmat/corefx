@@ -38,5 +38,15 @@ namespace System.Reflection.Metadata
         String = (byte)(TokenTypeIds.String >> TokenTypeIds.RowIdBitCount),
         Blob = (byte)(TokenTypeIds.Blob >> TokenTypeIds.RowIdBitCount),
         Guid = (byte)(TokenTypeIds.Guid >> TokenTypeIds.RowIdBitCount),
+
+        // note that the highest bit is reserved for virtual bit on Handle
+    }
+
+    internal static class HandleKindExtensions
+    {
+        internal static bool IsHeapHandle(this HandleKind kind)
+        {
+            return kind >= HandleKind.NamespaceDefinition;
+        }
     }
 }

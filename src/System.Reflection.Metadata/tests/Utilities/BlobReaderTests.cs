@@ -223,8 +223,8 @@ namespace System.Reflection.Metadata.Tests
                 var block = new MemoryBlock(bufferPtr, buffer.Length);
 
                 // small ref size always fits in 16 bits
-                Assert.Equal(0xFFFFU, block.PeekReference(0, smallRefSize: true));
-                Assert.Equal(0xFFFFU, block.PeekReference(4, smallRefSize: true));
+                Assert.Equal(0xFFFF, block.PeekReference(0, smallRefSize: true));
+                Assert.Equal(0xFFFF, block.PeekReference(4, smallRefSize: true));
                 Assert.Equal(0xFFFFU, block.PeekTaggedReference(0, smallRefSize: true));
                 Assert.Equal(0xFFFFU, block.PeekTaggedReference(4, smallRefSize: true));
                 Assert.Equal(0x01FFU, block.PeekTaggedReference(6, smallRefSize: true));

@@ -14,9 +14,9 @@ namespace System.Reflection.Metadata.Ecma335
         /// target TypeDef table. Ignored and should be zero if <see cref="ExportedType.IsForwarder"/> is
         /// true.
         /// </summary>
-        public static int GetTypeDefinitionId(this ExportedType exportedType)
+        public static uint GetTypeDefinitionId(this ExportedType exportedType)
         {
-            return (int)exportedType.reader.ExportedTypeTable.GetTypeDefId(exportedType.rowId);
+            return exportedType.reader.ExportedTypeTable.GetTypeDefId(exportedType.rowId);
         }
     }
 }

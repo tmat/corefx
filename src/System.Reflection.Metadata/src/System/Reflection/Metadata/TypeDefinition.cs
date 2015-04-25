@@ -23,9 +23,9 @@ namespace System.Reflection.Metadata
             _treatmentAndRowId = treatmentAndRowId;
         }
 
-        private uint RowId
+        private int RowId
         {
-            get { return _treatmentAndRowId & TokenTypeIds.RIDMask; }
+            get { return (int)(_treatmentAndRowId & TokenTypeIds.RIDMask); }
         }
 
         private TypeDefTreatment Treatment
@@ -118,7 +118,7 @@ namespace System.Reflection.Metadata
 
         public TypeLayout GetLayout()
         {
-            uint classLayoutRowId = _reader.ClassLayoutTable.FindRow(Handle);
+            int classLayoutRowId = _reader.ClassLayoutTable.FindRow(Handle);
             if (classLayoutRowId == 0)
             {
                 // NOTE: We don't need a bool/TryGetLayout because zero also means use default:

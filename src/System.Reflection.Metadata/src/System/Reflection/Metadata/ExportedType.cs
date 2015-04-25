@@ -10,9 +10,9 @@ namespace System.Reflection.Metadata
         internal readonly MetadataReader reader;
 
         // Workaround: JIT doesn't generate good code for nested structures, so use RowId.
-        internal readonly uint rowId;
+        internal readonly int rowId;
 
-        internal ExportedType(MetadataReader reader, uint rowId)
+        internal ExportedType(MetadataReader reader, int rowId)
         {
             Debug.Assert(reader != null);
             Debug.Assert(rowId != 0);

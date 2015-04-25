@@ -209,14 +209,14 @@ namespace System.Reflection.Metadata
 
         #endregion
 
-        private static uint TreatmentAndRowId(byte treatment, uint rowId)
+        private static uint TreatmentAndRowId(byte treatment, int rowId)
         {
-            return ((uint)treatment << TokenTypeIds.RowIdBitCount) | rowId;
+            return ((uint)treatment << TokenTypeIds.RowIdBitCount) | (uint)rowId;
         }
 
         #region TypeDef
 
-        [MethodImplAttribute(MethodImplOptions.NoInlining)]
+        [MethodImpl(MethodImplOptions.NoInlining)]
         internal uint CalculateTypeDefTreatmentAndRowId(TypeDefinitionHandle handle)
         {
             Debug.Assert(_metadataKind != MetadataKind.Ecma335);
@@ -322,7 +322,7 @@ namespace System.Reflection.Metadata
             int projectionIndex = GetProjectionIndexForTypeReference(handle, out isIDisposable);
             if (projectionIndex >= 0)
             {
-                return TreatmentAndRowId((byte)TypeRefTreatment.UseProjectionInfo, (uint)projectionIndex);
+                return TreatmentAndRowId((byte)TypeRefTreatment.UseProjectionInfo, projectionIndex);
             }
             else
             {
@@ -651,9 +651,9 @@ namespace System.Reflection.Metadata
 
         #region AssemblyRef
 
-        private uint FindMscorlibAssemblyRefNoProjection()
+        private int FindMscorlibAssemblyRefNoProjection()
         {
-            for (uint i = 1; i <= AssemblyRefTable.NumberOfNonVirtualRows; i++)
+            for (int i = 1; i <= AssemblyRefTable.NumberOfNonVirtualRows; i++)
             {
                 if (StringStream.EqualsRaw(AssemblyRefTable.GetName(i), "mscorlib"))
                 {
@@ -730,7 +730,7 @@ namespace System.Reflection.Metadata
                    StringStream.EqualsRaw(TypeRefTable.GetNamespace(attributeTypeRef), "Windows.Foundation.Metadata");
         }
 
-        private bool HasAttribute(Handle token, string asciiNamespaceName, string asciiTypeName)
+        private bool HasAttribute(EntityHandle token, string asciiNamespaceName, string asciiTypeName)
         {
             foreach (var caHandle in GetCustomAttributes(token))
             {

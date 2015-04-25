@@ -22,9 +22,9 @@ namespace System.Reflection.Metadata
             _treatmentAndRowId = treatmentAndRowId;
         }
 
-        private uint RowId
+        private int RowId
         {
-            get { return _treatmentAndRowId & TokenTypeIds.RIDMask; }
+            get { return (int)(_treatmentAndRowId & TokenTypeIds.RIDMask); }
         }
 
         private MemberRefTreatment Treatment

@@ -70,7 +70,7 @@ namespace System.Reflection.Metadata.Tests
             assert(MetadataTokens.UserStringHandle(1), HandleKind.UserString);
             assert(MetadataTokens.GuidHandle(1), HandleKind.Guid);
             assert(MetadataTokens.BlobHandle(1), HandleKind.Blob);
-            assert(NamespaceDefinitionHandle.FromIndexOfFullName(1), HandleKind.NamespaceDefinition);
+            assert(NamespaceDefinitionHandle.FromFullNameOffset(1), HandleKind.NamespaceDefinition);
 
             Assert.True(expectedKinds.Count == 0, "Some handles are missing from this test: " + String.Join("," + Environment.NewLine, expectedKinds));
         }
@@ -87,7 +87,7 @@ namespace System.Reflection.Metadata.Tests
                     Handle handle = new Handle(virtualBit | i << TokenTypeIds.RowIdBitCount);
                     Assert.True(handle.IsNil ^ handle.IsVirtual);
                     Assert.Equal(virtualBit != 0, handle.IsVirtual);
-                    Assert.Equal(handle.TokenType, i << TokenTypeIds.RowIdBitCount);
+                    Assert.Equal(handle.Type, i << TokenTypeIds.RowIdBitCount);
 
                     switch (i)
                     {
@@ -106,7 +106,7 @@ namespace System.Reflection.Metadata.Tests
                             }
                             catch (InvalidCastException)
                             {
-                                Assert.True(handle.TokenType > TokenTypeIds.MaxString);
+                                Assert.True(handle.Type > TokenTypeIds.MaxString);
                                 invalidStringTypeCount++;
                                 break;
                             }
@@ -127,7 +127,7 @@ namespace System.Reflection.Metadata.Tests
                             }
                             catch (InvalidCastException)
                             {
-                                Assert.True(handle.TokenType > TokenTypeIds.MaxNamespace);
+                                Assert.True(handle.Type > TokenTypeIds.MaxNamespace);
                                 invalidNamespaceTypeCount++;
                                 break;
                             }

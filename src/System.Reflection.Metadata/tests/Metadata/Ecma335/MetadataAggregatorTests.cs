@@ -15,7 +15,7 @@ namespace System.Reflection.Metadata.Tests
         {
             GCHandle handle = GCHandle.Alloc(tokens, GCHandleType.Pinned);
             var block = new MemoryBlock((byte*)handle.AddrOfPinnedObject(), tokens.Length * sizeof(uint));
-            return new EnCMapTableReader((uint)tokens.Length, block, containingBlockOffset: 0);
+            return new EnCMapTableReader(tokens.Length, block, containingBlockOffset: 0);
         }
 
         private static EnCMapTableReader[] CreateEncMapTables(int[][] tables)
@@ -40,7 +40,7 @@ namespace System.Reflection.Metadata.Tests
             int actualGeneration;
             var actualHandle = aggregator.GetGenerationHandle(new Handle((uint)token), out actualGeneration);
             Assert.Equal(expectedGeneration, actualGeneration);
-            Assert.Equal(expectedToken, (int)actualHandle.value);
+            Assert.Equal(expectedToken, actualHandle.Token);
         }
 
         [Fact]

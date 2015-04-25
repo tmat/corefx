@@ -68,9 +68,25 @@ namespace System.Reflection.Metadata
         }
 
         /// <summary>
-        /// Namespace of the type, or nil if the type is nested or defined in a root namespace.
+        /// Full name of the namespace where the type is defined, or nil if the type is nested or defined in a root namespace.
         /// </summary>
-        public NamespaceDefinitionHandle Namespace
+        public StringHandle Namespace
+        {
+            get
+            {
+                if (Treatment == 0)
+                {
+                    return _reader.TypeDefTable.GetNamespaceString(Handle);
+                }
+
+                return GetProjectedNamespaceString();
+            }
+        }
+
+        /// <summary>
+        /// The definition handle of the namespace where the type is defined, or nil if the type is nested or defined in a root namespace.
+        /// </summary>
+        public NamespaceDefinitionHandle NamespaceDefinition
         {
             get
             {
@@ -255,6 +271,12 @@ namespace System.Reflection.Metadata
 
             // no change:
             return _reader.TypeDefTable.GetNamespace(Handle);
+        }
+
+        private StringHandle GetProjectedNamespaceString()
+        {
+            // no change:
+            return _reader.TypeDefTable.GetNamespaceString(Handle);
         }
 
         private Handle GetProjectedBaseType()

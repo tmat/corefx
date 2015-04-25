@@ -371,7 +371,7 @@ namespace System.Reflection.Metadata.Ecma335
                     continue; // skip nested exported types.
                 }
 
-                NamespaceDefinitionHandle namespaceHandle = exportedType.Namespace;
+                NamespaceDefinitionHandle namespaceHandle = exportedType.NamespaceDefinition;
                 NamespaceDataBuilder builder;
                 if (table.TryGetValue(namespaceHandle, out builder))
                 {

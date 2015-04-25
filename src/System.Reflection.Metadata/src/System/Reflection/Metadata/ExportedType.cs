@@ -36,12 +36,29 @@ namespace System.Reflection.Metadata
             get { return Attributes.IsForwarder() && Implementation.Kind == HandleKind.AssemblyReference; }
         }
 
+        /// <summary>
+        /// Name of the target type, or nil if the type is nested or defined in a root namespace.
+        /// </summary>
         public StringHandle Name
         {
             get { return reader.ExportedTypeTable.GetTypeName(rowId); }
         }
 
-        public NamespaceDefinitionHandle Namespace
+        /// <summary>
+        /// Full name of the namespace where the target type, or nil if the type is nested or defined in a root namespace.
+        /// </summary>
+        public StringHandle Namespace
+        {
+            get
+            {
+                return reader.ExportedTypeTable.GetTypeNamespaceString(rowId);
+            }
+        }
+
+        /// <summary>
+        /// The definition handle of the namespace where the target type is defined, or nil if the type is nested or defined in a root namespace.
+        /// </summary>
+        public NamespaceDefinitionHandle NamespaceDefinition
         {
             get
             {

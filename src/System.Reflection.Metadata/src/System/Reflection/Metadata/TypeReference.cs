@@ -80,7 +80,7 @@ namespace System.Reflection.Metadata
         }
 
         /// <summary>
-        /// Name of the namespace where the target type is defined, or nil if the type is nested or defined in a root namespace.
+        /// Full name of the namespace where the target type is defined, or nil if the type is nested or defined in a root namespace.
         /// </summary>
         public StringHandle Namespace
         {

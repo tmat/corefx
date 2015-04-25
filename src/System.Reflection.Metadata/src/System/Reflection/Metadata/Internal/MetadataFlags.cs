@@ -188,6 +188,16 @@ namespace System.Reflection.Metadata.Ecma335
 
         internal const uint HeapMask = 0x70000000;
         internal const uint RIDMask = 0x00FFFFFF;
+
+        // Spec (Partition II, 24.2.6 #~ stream):
+        // The HeapSizes field is a bitvector that encodes the width of indexes into the various heaps. If bit 0 is
+        // set, indexes into the "#String" heap are 4 bytes wide; if bit 1 is set, indexes into the "#GUID" heap are
+        // 4 bytes wide; if bit 2 is set, indexes into the "#Blob" heap are 4 bytes wide. Conversely, if the
+        // HeapSize bit for a particular heap is not set, indexes into that heap are 2 bytes wide.
+        //
+        // We only support 29-bit heap indices.
+        internal const uint HeapIndexMask = 0x1FFFFFFF;
+
         internal const uint TableTokenTypeMask = 0x5F000000;
         internal const uint TokenTypeMask = 0x7F000000;
 
@@ -223,6 +233,11 @@ namespace System.Reflection.Metadata.Ecma335
         internal static bool IsValidRowId(uint rowId)
         {
             return (rowId & ~RIDMask) == 0;
+        }
+
+        internal static bool IsValidHeapIndex(uint index)
+        {
+            return (index & ~RIDMask) == 0;
         }
 
         internal static int CompareTokens(uint t1, uint t2)

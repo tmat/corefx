@@ -950,14 +950,14 @@ namespace System.Reflection.Metadata.Tests
 
             foreach (var typeHandle in reader.TypeDefinitions)
             {
-                namespaceSet.Add(reader.GetTypeDefinition(typeHandle).Namespace);
+                namespaceSet.Add(reader.GetTypeDefinition(typeHandle).NamespaceDefinition);
             }
 
             Assert.False(reader.NamespaceCache.CacheIsRealized);
 
             foreach (var typeForwarderHandle in reader.ExportedTypes)
             {
-                namespaceSet.Add(reader.GetExportedType(typeForwarderHandle).Namespace);
+                namespaceSet.Add(reader.GetExportedType(typeForwarderHandle).NamespaceDefinition);
             }
 
             Assert.False(reader.NamespaceCache.CacheIsRealized);

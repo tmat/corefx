@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Diagnostics;
+
 namespace System.Reflection.Metadata.Ecma335
 {
     internal enum MetadataStreamKind
@@ -131,6 +133,88 @@ namespace System.Reflection.Metadata.Ecma335
         Synthetic = 1,
     }
 
+    internal static class TokenTypeSmall
+    {
+        internal const uint Module = 0x00;
+        internal const uint TypeRef = 0x01;
+        internal const uint TypeDef = 0x02;
+        internal const uint FieldDef = 0x04;
+        internal const uint MethodDef = 0x06;
+        internal const uint ParamDef = 0x08;
+        internal const uint InterfaceImpl = 0x09;
+        internal const uint MemberRef = 0x0a;
+        internal const uint Constant = 0x0b;
+        internal const uint CustomAttribute = 0x0c;
+        internal const uint DeclSecurity = 0x0e;
+        internal const uint Signature = 0x11;
+        internal const uint EventMap = 0x12;
+        internal const uint Event = 0x14;
+        internal const uint PropertyMap = 0x15;
+        internal const uint Property = 0x17;
+        internal const uint MethodSemantics = 0x18;
+        internal const uint MethodImpl = 0x19;
+        internal const uint ModuleRef = 0x1a;
+        internal const uint TypeSpec = 0x1b;
+        internal const uint Assembly = 0x20;
+        internal const uint AssemblyRef = 0x23;
+        internal const uint File = 0x26;
+        internal const uint ExportedType = 0x27;
+        internal const uint ManifestResource = 0x28;
+        internal const uint NestedClass = 0x29;
+        internal const uint GenericParam = 0x2a;
+        internal const uint MethodSpec = 0x2b;
+        internal const uint GenericParamConstraint = 0x2c;
+
+        internal const uint UserString = 0x70;     // #UserString heap
+
+        // The following values never appear in a token stored in metadata, 
+        // they are just helper values to identify the type of a handle.
+
+        internal const uint Blob = 0x71;        // #Blob heap
+        internal const uint Guid = 0x72;        // #Guid heap
+
+        // #String heap and its modifications
+        internal const uint String = 0x78;               // #String heap
+        internal const uint WinRTPrefixedString = 0x79;  // #String heap with <WinRT> prefix
+        internal const uint DotTerminatedString = 0x7a;  // #String heap that treats '.' as a string terminator in addition to '\0'
+        // internal const uint ReservedString = 0x7b;    // [reserved] can only be used for a new string kind.
+        internal const uint MaxString = DotTerminatedString;
+
+        internal const uint Namespace = 0x7c;              // Namespace handle for namespace with types of its own
+        internal const uint SyntheticNamespace = 0x7d;     // Namespace handle for namespace with child namespaces but no types of its own
+        // internal const uint Reserved1Namespace = 0x7e;  // [reserved] can only be used for a new namespace kind
+        // internal const uint Reserved2Namespace = 0x7f;  // [reserved] can only be used for a new namespace kind
+        internal const uint MaxNamespace = SyntheticNamespace;
+
+        internal const uint StringOrNamespaceKindMask = 0x03;
+
+        internal const uint HeapMask = 0x70;
+        internal const uint TableTokenTypeMask = 0x5F;
+        internal const uint TokenTypeMask = 0x7F;
+        internal const int TokenTypeBitCount = 7;
+
+        /// <summary>
+        /// Use the highest bit to mark tokens that are virtual (synthesized).
+        /// We create virtual tokens to represent projected WinMD entities. 
+        /// </summary>
+        internal const uint VirtualTokenMask = 0x80;
+
+        public static HandleKind ToHandleKind(uint smallTokenType)
+        {
+            // Do not surface special string and namespace token sub-types (e.g. dot terminated, winrt prefixed, synthetic) 
+            // in public-facing handle type.
+            if (smallTokenType > String)
+            {
+                Debug.Assert((smallTokenType & ~StringOrNamespaceKindMask) == String || 
+                             (smallTokenType & ~StringOrNamespaceKindMask) == Namespace);
+
+                return (HandleKind)(smallTokenType & ~StringOrNamespaceKindMask);
+            }
+
+            return (HandleKind)smallTokenType;
+        }
+    }
+
     internal static class TokenTypeIds
     {
         internal const uint Module = 0x00000000;
@@ -187,7 +271,9 @@ namespace System.Reflection.Metadata.Ecma335
         internal const uint StringOrNamespaceKindMask = 0x03000000;
 
         internal const uint HeapMask = 0x70000000;
+
         internal const uint RIDMask = 0x00FFFFFF;
+
         internal const uint TableTokenTypeMask = 0x5F000000;
         internal const uint TokenTypeMask = 0x7F000000;
 
@@ -195,9 +281,10 @@ namespace System.Reflection.Metadata.Ecma335
         /// Use the highest bit to mark tokens that are virtual (synthesized).
         /// We create virtual tokens to represent projected WinMD entities. 
         /// </summary>
-        internal const uint VirtualTokenMask = 1U << 31;
+        internal const uint VirtualTokenMask = 0x80000000;
 
         internal const uint VirtualBitAndRowIdMask = VirtualTokenMask | RIDMask;
+        internal const uint VirtualBitTokenTypeMask = VirtualTokenMask | TokenTypeMask;
 
         internal const int RowIdBitCount = 24;
 
@@ -215,9 +302,14 @@ namespace System.Reflection.Metadata.Ecma335
         /// list of tables) or to 0x70 for the User String heap.The least-significant 3 bytes specify the target row within that
         /// metadata table, or starting byte offset within the User String heap.
         /// </summary>
-        internal static bool IsEcmaToken(uint value)
+        internal static bool IsEntityOrUserStringToken(uint value)
         {
             return (value & TokenTypeMask) <= UserString;
+        }
+
+        internal static bool IsEntityToken(uint value)
+        {
+            return (value & TokenTypeMask) < UserString;
         }
 
         internal static bool IsValidRowId(uint rowId)
@@ -225,11 +317,9 @@ namespace System.Reflection.Metadata.Ecma335
             return (rowId & ~RIDMask) == 0;
         }
 
-        internal static int CompareTokens(uint t1, uint t2)
+        internal static bool IsValidRowId(int rowId)
         {
-            // all virtual tokens will be sorted after non-virtual tokens
-            return (int)((t1 & RIDMask) | ((t1 & VirtualTokenMask) >> 3)) -
-                   (int)((t2 & RIDMask) | ((t2 & VirtualTokenMask) >> 3));
+            return (rowId & ~RIDMask) == 0;
         }
     }
 }

@@ -215,8 +215,8 @@ namespace System.Reflection.Metadata.Ecma335
                 tableRowCounts[generation].AggregateInserts = tableRowCounts[generation - 1].AggregateInserts;
             }
 
-            int mapRowCount = (int)encMapTable.NumberOfRows;
-            for (uint mapRid = 1; mapRid <= mapRowCount; mapRid++)
+            int mapRowCount = encMapTable.NumberOfRows;
+            for (int mapRid = 1; mapRid <= mapRowCount; mapRid++)
             {
                 uint token = encMapTable.GetToken(mapRid);
                 int rid = (int)(token & TokenTypeIds.RIDMask);
@@ -250,8 +250,8 @@ namespace System.Reflection.Metadata.Ecma335
                 throw new NotSupportedException();
             }
 
-            int rowId = (int)handle.RowId;
-            uint typeId = handle.TokenType;
+            int rowId = handle.RowId;
+            uint typeId = handle.Type;
             int relativeRowId;
 
             if (handle.IsHeapHandle)
@@ -288,7 +288,7 @@ namespace System.Reflection.Metadata.Ecma335
             }
             else
             {
-                var sizes = _rowCounts[(int)handle.value >> TokenTypeIds.RowIdBitCount];
+                var sizes = _rowCounts[(int)handle.TypeSmall];
 
                 generation = sizes.BinarySearch(new RowCounts { AggregateInserts = rowId });
                 if (generation >= 0)

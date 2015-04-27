@@ -144,7 +144,7 @@ namespace System.Reflection.Metadata
             }
             else if ((localSignatureToken & TokenTypeIds.TokenTypeMask) == TokenTypeIds.Signature)
             {
-                localSignatureHandle = StandaloneSignatureHandle.FromRowId((uint)localSignatureToken & TokenTypeIds.RIDMask);
+                localSignatureHandle = StandaloneSignatureHandle.FromRowId((int)((uint)localSignatureToken & TokenTypeIds.RIDMask));
             }
             else
             {

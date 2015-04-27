@@ -372,10 +372,10 @@ namespace System.Reflection.Metadata.Tests
             {
                 var block = new MemoryBlock(tablePtr, table.Length);
 
-                Assert.Equal(0x0004U, block.PeekReference(6, smallRefSize: true));
+                Assert.Equal(0x0004, block.PeekReference(6, smallRefSize: true));
 
                 var actual = block.BuildPtrTable(rowCount, rowSize, secondColumnOffset, isReferenceSmall: true);
-                var expected = new uint[] { 4, 2, 1, 5, 3 };
+                var expected = new int[] { 4, 2, 1, 5, 3 };
                 AssertEx.Equal(expected, actual);
             }
         }
@@ -401,10 +401,10 @@ namespace System.Reflection.Metadata.Tests
             {
                 var block = new MemoryBlock(tablePtr, table.Length);
 
-                Assert.Equal(0x00040010U, block.PeekReference(8, smallRefSize: false));
+                Assert.Equal(0x00040010, block.PeekReference(8, smallRefSize: false));
 
                 var actual = block.BuildPtrTable(rowCount, rowSize, secondColumnOffset, isReferenceSmall: false);
-                var expected = new uint[] { 4, 2, 1, 5, 3 };
+                var expected = new int[] { 4, 2, 1, 5, 3 };
                 AssertEx.Equal(expected, actual);
             }
         }

@@ -70,32 +70,33 @@ namespace System.Reflection.Metadata.Tests
             assert(MetadataTokens.UserStringHandle(1), HandleKind.UserString);
             assert(MetadataTokens.GuidHandle(1), HandleKind.Guid);
             assert(MetadataTokens.BlobHandle(1), HandleKind.Blob);
-            assert(NamespaceDefinitionHandle.FromIndexOfFullName(1), HandleKind.NamespaceDefinition);
+            assert(NamespaceDefinitionHandle.FromFullNameOffset(1), HandleKind.NamespaceDefinition);
 
             Assert.True(expectedKinds.Count == 0, "Some handles are missing from this test: " + String.Join("," + Environment.NewLine, expectedKinds));
         }
+
         [Fact]
         public void HandleKindHidesSpecialStringAndNamespaces()
         {
-            foreach (uint virtualBit in new[] { 0U, TokenTypeIds.VirtualTokenMask })
+            foreach (int virtualBit in new[] { 0, (int)TokenTypeSmall.VirtualTokenMask })
             {
                 uint invalidStringTypeCount = 0;
                 uint invalidNamespaceTypeCount = 0;
 
-                for (uint i = 0; i <= sbyte.MaxValue; i++)
+                for (int i = 0; i <= sbyte.MaxValue; i++)
                 {
-                    Handle handle = new Handle(virtualBit | i << TokenTypeIds.RowIdBitCount);
+                    Handle handle = new Handle((byte)(virtualBit | i), 0);
                     Assert.True(handle.IsNil ^ handle.IsVirtual);
                     Assert.Equal(virtualBit != 0, handle.IsVirtual);
-                    Assert.Equal(handle.TokenType, i << TokenTypeIds.RowIdBitCount);
+                    Assert.Equal(handle.Type, (uint)i << TokenTypeIds.RowIdBitCount);
 
                     switch (i)
                     {
                         // String and namespace have two extra bits to represent their kind that are hidden from the handle type
-                        case (uint)HandleKind.String:
-                        case (uint)HandleKind.String + 1:
-                        case (uint)HandleKind.String + 2:
-                        case (uint)HandleKind.String + 3:
+                        case (int)HandleKind.String:
+                        case (int)HandleKind.String + 1:
+                        case (int)HandleKind.String + 2:
+                        case (int)HandleKind.String + 3:
                             Assert.Equal(HandleKind.String, handle.Kind);
 
                             StringKind stringType = (StringKind)(i - (int)HandleKind.String);
@@ -106,17 +107,17 @@ namespace System.Reflection.Metadata.Tests
                             }
                             catch (InvalidCastException)
                             {
-                                Assert.True(handle.TokenType > TokenTypeIds.MaxString);
+                                Assert.True(handle.Type > TokenTypeIds.MaxString);
                                 invalidStringTypeCount++;
                                 break;
                             }
                             Assert.Equal(stringType, stringHandle.StringKind);
                             break;
 
-                        case (uint)HandleKind.NamespaceDefinition:
-                        case (uint)HandleKind.NamespaceDefinition + 1:
-                        case (uint)HandleKind.NamespaceDefinition + 2:
-                        case (uint)HandleKind.NamespaceDefinition + 3:
+                        case (int)HandleKind.NamespaceDefinition:
+                        case (int)HandleKind.NamespaceDefinition + 1:
+                        case (int)HandleKind.NamespaceDefinition + 2:
+                        case (int)HandleKind.NamespaceDefinition + 3:
                             Assert.Equal(HandleKind.NamespaceDefinition, handle.Kind);
 
                             NamespaceKind namespaceType = (NamespaceKind)(i - (int)HandleKind.NamespaceDefinition);
@@ -127,7 +128,7 @@ namespace System.Reflection.Metadata.Tests
                             }
                             catch (InvalidCastException)
                             {
-                                Assert.True(handle.TokenType > TokenTypeIds.MaxNamespace);
+                                Assert.True(handle.Type > TokenTypeIds.MaxNamespace, handle.Type.ToString("X8"));
                                 invalidNamespaceTypeCount++;
                                 break;
                             }
@@ -136,12 +137,12 @@ namespace System.Reflection.Metadata.Tests
 
                         // all other types surface token type directly.
                         default:
-                            Assert.Equal((uint)handle.Kind, i);
+                            Assert.Equal((int)handle.Kind, i);
                             break;
                     }
                 }
-                Assert.Equal((uint)((TokenTypeIds.String | TokenTypeIds.StringOrNamespaceKindMask) - TokenTypeIds.MaxString) >> TokenTypeIds.RowIdBitCount, invalidStringTypeCount);
-                Assert.Equal((uint)((TokenTypeIds.Namespace | TokenTypeIds.StringOrNamespaceKindMask) - TokenTypeIds.MaxNamespace) >> TokenTypeIds.RowIdBitCount, invalidNamespaceTypeCount);
+                Assert.Equal(((TokenTypeIds.String | TokenTypeIds.StringOrNamespaceKindMask) - TokenTypeIds.MaxString) >> TokenTypeIds.RowIdBitCount, invalidStringTypeCount);
+                Assert.Equal(((TokenTypeIds.Namespace | TokenTypeIds.StringOrNamespaceKindMask) - TokenTypeIds.MaxNamespace) >> TokenTypeIds.RowIdBitCount, invalidNamespaceTypeCount);
             }
         }
     }

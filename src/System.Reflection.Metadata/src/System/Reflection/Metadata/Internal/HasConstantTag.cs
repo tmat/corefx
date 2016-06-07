@@ -9,10 +9,6 @@ namespace System.Reflection.Metadata.Ecma335
     internal static class HasConstantTag
     {
         internal const int NumberOfBits = 2;
-        internal const TableMask TablesReferenced =
-          TableMask.Field
-          | TableMask.Param
-          | TableMask.Property;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static EntityHandle ConvertToHandle(uint hasConstant)

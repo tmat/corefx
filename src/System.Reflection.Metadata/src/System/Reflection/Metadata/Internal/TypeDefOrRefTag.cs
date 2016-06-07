@@ -9,10 +9,6 @@ namespace System.Reflection.Metadata.Ecma335
     internal static class TypeDefOrRefTag
     {
         internal const int NumberOfBits = 2;
-        internal const TableMask TablesReferenced =
-          TableMask.TypeDef
-          | TableMask.TypeRef
-          | TableMask.TypeSpec;
 
         // inlining improves perf of the tight loop in FindSystemObjectTypeDef by 25%
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

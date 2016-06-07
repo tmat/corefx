@@ -9,9 +9,6 @@ namespace System.Reflection.Metadata.Ecma335
     internal static class MemberForwardedTag
     {
         internal const int NumberOfBits = 1;
-        internal const TableMask TablesReferenced =
-          TableMask.Field
-          | TableMask.MethodDef;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static EntityHandle ConvertToHandle(uint memberForwarded)

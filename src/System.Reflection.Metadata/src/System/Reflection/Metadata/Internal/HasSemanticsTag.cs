@@ -9,9 +9,6 @@ namespace System.Reflection.Metadata.Ecma335
     internal static class HasSemanticsTag
     {
         internal const int NumberOfBits = 1;
-        internal const TableMask TablesReferenced =
-          TableMask.Event
-          | TableMask.Property;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static EntityHandle ConvertToHandle(uint hasSemantic)

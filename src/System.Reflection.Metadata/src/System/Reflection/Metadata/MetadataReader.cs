@@ -584,19 +584,19 @@ namespace System.Reflection.Metadata
             int propertyRefSizeSorted = GetReferenceSize(rowCounts, TableIndex.PropertyPtr) > SmallIndexSize ? LargeIndexSize : GetReferenceSize(rowCounts, TableIndex.Property);
 
             // Compute the coded token ref sizes
-            int typeDefOrRefRefSize = ComputeCodedTokenSize(TypeDefOrRefTag.NumberOfBits, rowCounts, TypeDefOrRefTag.TablesReferenced);
-            int hasConstantRefSize = ComputeCodedTokenSize(HasConstantTag.NumberOfBits, rowCounts, HasConstantTag.TablesReferenced);
-            int hasCustomAttributeRefSize = ComputeCodedTokenSize(HasCustomAttributeTag.NumberOfBits, rowCounts, HasCustomAttributeTag.TablesReferenced);
-            int hasFieldMarshalRefSize = ComputeCodedTokenSize(HasFieldMarshalTag.NumberOfBits, rowCounts, HasFieldMarshalTag.TablesReferenced);
-            int hasDeclSecurityRefSize = ComputeCodedTokenSize(HasDeclSecurityTag.NumberOfBits, rowCounts, HasDeclSecurityTag.TablesReferenced);
-            int memberRefParentRefSize = ComputeCodedTokenSize(MemberRefParentTag.NumberOfBits, rowCounts, MemberRefParentTag.TablesReferenced);
-            int hasSemanticsRefSize = ComputeCodedTokenSize(HasSemanticsTag.NumberOfBits, rowCounts, HasSemanticsTag.TablesReferenced);
-            int methodDefOrRefRefSize = ComputeCodedTokenSize(MethodDefOrRefTag.NumberOfBits, rowCounts, MethodDefOrRefTag.TablesReferenced);
-            int memberForwardedRefSize = ComputeCodedTokenSize(MemberForwardedTag.NumberOfBits, rowCounts, MemberForwardedTag.TablesReferenced);
-            int implementationRefSize = ComputeCodedTokenSize(ImplementationTag.NumberOfBits, rowCounts, ImplementationTag.TablesReferenced);
-            int customAttributeTypeRefSize = ComputeCodedTokenSize(CustomAttributeTypeTag.NumberOfBits, rowCounts, CustomAttributeTypeTag.TablesReferenced);
-            int resolutionScopeRefSize = ComputeCodedTokenSize(ResolutionScopeTag.NumberOfBits, rowCounts, ResolutionScopeTag.TablesReferenced);
-            int typeOrMethodDefRefSize = ComputeCodedTokenSize(TypeOrMethodDefTag.NumberOfBits, rowCounts, TypeOrMethodDefTag.TablesReferenced);
+            int typeDefOrRefOrSpecRefSize = ComputeCodedTokenSize(TypeDefOrRefTag.NumberOfBits, rowCounts, CodedIndex.TypeDefOrRefOrSpec_TablesReferenced);
+            int hasConstantRefSize = ComputeCodedTokenSize(HasConstantTag.NumberOfBits, rowCounts, CodedIndex.HasConstant_TablesReferenced);
+            int hasCustomAttributeRefSize = ComputeCodedTokenSize(HasCustomAttributeTag.NumberOfBits, rowCounts, CodedIndex.HasCustomAttribute_TablesReferenced);
+            int hasFieldMarshalRefSize = ComputeCodedTokenSize(HasFieldMarshalTag.NumberOfBits, rowCounts, CodedIndex.HasFieldMarshal_TablesReferenced);
+            int hasDeclSecurityRefSize = ComputeCodedTokenSize(HasDeclSecurityTag.NumberOfBits, rowCounts, CodedIndex.HasDeclSecurity_TablesReferenced);
+            int memberRefParentRefSize = ComputeCodedTokenSize(MemberRefParentTag.NumberOfBits, rowCounts, CodedIndex.MemberRefParent_TablesReferenced);
+            int hasSemanticsRefSize = ComputeCodedTokenSize(HasSemanticsTag.NumberOfBits, rowCounts, CodedIndex.HasSemantics_TablesReferenced);
+            int methodDefOrRefRefSize = ComputeCodedTokenSize(MethodDefOrRefTag.NumberOfBits, rowCounts, CodedIndex.MethodDefOrRef_TablesReferenced);
+            int memberForwardedRefSize = ComputeCodedTokenSize(MemberForwardedTag.NumberOfBits, rowCounts, CodedIndex.MemberForwarded_TablesReferenced);
+            int implementationRefSize = ComputeCodedTokenSize(ImplementationTag.NumberOfBits, rowCounts, CodedIndex.Implementation_TablesReferenced);
+            int customAttributeTypeRefSize = ComputeCodedTokenSize(CustomAttributeTypeTag.NumberOfBits, rowCounts, CodedIndex.CustomAttributeType_TablesReferenced);
+            int resolutionScopeRefSize = ComputeCodedTokenSize(ResolutionScopeTag.NumberOfBits, rowCounts, CodedIndex.ResolutionScope_TablesReferenced);
+            int typeOrMethodDefRefSize = ComputeCodedTokenSize(TypeOrMethodDefTag.NumberOfBits, rowCounts, CodedIndex.TypeOrMethodDef_TablesReferenced);
 
             // Compute HeapRef Sizes
             int stringHeapRefSize = (heapSizes & HeapSizes.StringHeapLarge) == HeapSizes.StringHeapLarge ? LargeIndexSize : SmallIndexSize;
@@ -611,7 +611,7 @@ namespace System.Reflection.Metadata
             this.TypeRefTable = new TypeRefTableReader(rowCounts[(int)TableIndex.TypeRef], resolutionScopeRefSize, stringHeapRefSize, metadataTablesMemoryBlock, totalRequiredSize);
             totalRequiredSize += this.TypeRefTable.Block.Length;
 
-            this.TypeDefTable = new TypeDefTableReader(rowCounts[(int)TableIndex.TypeDef], fieldRefSizeSorted, methodRefSizeSorted, typeDefOrRefRefSize, stringHeapRefSize, metadataTablesMemoryBlock, totalRequiredSize);
+            this.TypeDefTable = new TypeDefTableReader(rowCounts[(int)TableIndex.TypeDef], fieldRefSizeSorted, methodRefSizeSorted, typeDefOrRefOrSpecRefSize, stringHeapRefSize, metadataTablesMemoryBlock, totalRequiredSize);
             totalRequiredSize += this.TypeDefTable.Block.Length;
 
             this.FieldPtrTable = new FieldPtrTableReader(rowCounts[(int)TableIndex.FieldPtr], GetReferenceSize(rowCounts, TableIndex.Field), metadataTablesMemoryBlock, totalRequiredSize);
@@ -632,7 +632,7 @@ namespace System.Reflection.Metadata
             this.ParamTable = new ParamTableReader(rowCounts[(int)TableIndex.Param], stringHeapRefSize, metadataTablesMemoryBlock, totalRequiredSize);
             totalRequiredSize += this.ParamTable.Block.Length;
 
-            this.InterfaceImplTable = new InterfaceImplTableReader(rowCounts[(int)TableIndex.InterfaceImpl], IsDeclaredSorted(TableMask.InterfaceImpl), GetReferenceSize(rowCounts, TableIndex.TypeDef), typeDefOrRefRefSize, metadataTablesMemoryBlock, totalRequiredSize);
+            this.InterfaceImplTable = new InterfaceImplTableReader(rowCounts[(int)TableIndex.InterfaceImpl], IsDeclaredSorted(TableMask.InterfaceImpl), GetReferenceSize(rowCounts, TableIndex.TypeDef), typeDefOrRefOrSpecRefSize, metadataTablesMemoryBlock, totalRequiredSize);
             totalRequiredSize += this.InterfaceImplTable.Block.Length;
 
             this.MemberRefTable = new MemberRefTableReader(rowCounts[(int)TableIndex.MemberRef], memberRefParentRefSize, stringHeapRefSize, blobHeapRefSize, metadataTablesMemoryBlock, totalRequiredSize);
@@ -671,7 +671,7 @@ namespace System.Reflection.Metadata
             this.EventPtrTable = new EventPtrTableReader(rowCounts[(int)TableIndex.EventPtr], GetReferenceSize(rowCounts, TableIndex.Event), metadataTablesMemoryBlock, totalRequiredSize);
             totalRequiredSize += this.EventPtrTable.Block.Length;
 
-            this.EventTable = new EventTableReader(rowCounts[(int)TableIndex.Event], typeDefOrRefRefSize, stringHeapRefSize, metadataTablesMemoryBlock, totalRequiredSize);
+            this.EventTable = new EventTableReader(rowCounts[(int)TableIndex.Event], typeDefOrRefOrSpecRefSize, stringHeapRefSize, metadataTablesMemoryBlock, totalRequiredSize);
             totalRequiredSize += this.EventTable.Block.Length;
 
             this.PropertyMapTable = new PropertyMapTableReader(rowCounts[(int)TableIndex.PropertyMap], GetReferenceSize(rowCounts, TableIndex.TypeDef), propertyRefSizeSorted, metadataTablesMemoryBlock, totalRequiredSize);
@@ -743,7 +743,7 @@ namespace System.Reflection.Metadata
             this.MethodSpecTable = new MethodSpecTableReader(rowCounts[(int)TableIndex.MethodSpec], methodDefOrRefRefSize, blobHeapRefSize, metadataTablesMemoryBlock, totalRequiredSize);
             totalRequiredSize += this.MethodSpecTable.Block.Length;
 
-            this.GenericParamConstraintTable = new GenericParamConstraintTableReader(rowCounts[(int)TableIndex.GenericParamConstraint], IsDeclaredSorted(TableMask.GenericParamConstraint), GetReferenceSize(rowCounts, TableIndex.GenericParam), typeDefOrRefRefSize, metadataTablesMemoryBlock, totalRequiredSize);
+            this.GenericParamConstraintTable = new GenericParamConstraintTableReader(rowCounts[(int)TableIndex.GenericParamConstraint], IsDeclaredSorted(TableMask.GenericParamConstraint), GetReferenceSize(rowCounts, TableIndex.GenericParam), typeDefOrRefOrSpecRefSize, metadataTablesMemoryBlock, totalRequiredSize);
             totalRequiredSize += this.GenericParamConstraintTable.Block.Length;
 
             // debug tables:
@@ -753,7 +753,7 @@ namespace System.Reflection.Metadata
             var combinedRowCounts = (externalRowCountsOpt != null) ? CombineRowCounts(rowCounts, externalRowCountsOpt, firstLocalTableIndex: TableIndex.Document) : rowCounts;
 
             int methodRefSizeCombined = GetReferenceSize(combinedRowCounts, TableIndex.MethodDef);
-            int hasCustomDebugInformationRefSizeCombined = ComputeCodedTokenSize(HasCustomDebugInformationTag.LargeRowSize, combinedRowCounts, HasCustomDebugInformationTag.TablesReferenced);
+            int hasCustomDebugInformationRefSizeCombined = ComputeCodedTokenSize(CodedIndex.HasCustomDebugInformation.BitCount, combinedRowCounts, CodedIndex.HasCustomDebugInformation.TablesReferenced);
 
             this.DocumentTable = new DocumentTableReader(rowCounts[(int)TableIndex.Document], guidHeapRefSize, blobHeapRefSize, metadataTablesMemoryBlock, totalRequiredSize);
             totalRequiredSize += this.DocumentTable.Block.Length;

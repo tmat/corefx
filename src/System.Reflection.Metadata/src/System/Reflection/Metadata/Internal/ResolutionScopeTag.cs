@@ -9,11 +9,6 @@ namespace System.Reflection.Metadata.Ecma335
     internal static class ResolutionScopeTag
     {
         internal const int NumberOfBits = 2;
-        internal const TableMask TablesReferenced =
-          TableMask.Module
-          | TableMask.ModuleRef
-          | TableMask.AssemblyRef
-          | TableMask.TypeRef;
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         internal static EntityHandle ConvertToHandle(uint resolutionScope)

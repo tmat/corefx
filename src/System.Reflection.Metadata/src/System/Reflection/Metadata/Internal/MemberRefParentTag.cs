@@ -9,12 +9,6 @@ namespace System.Reflection.Metadata.Ecma335
     internal static class MemberRefParentTag
     {
         internal const int NumberOfBits = 3;
-        internal const TableMask TablesReferenced =
-          TableMask.TypeDef
-          | TableMask.TypeRef
-          | TableMask.ModuleRef
-          | TableMask.MethodDef
-          | TableMask.TypeSpec;
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         internal static EntityHandle ConvertToHandle(uint memberRef)

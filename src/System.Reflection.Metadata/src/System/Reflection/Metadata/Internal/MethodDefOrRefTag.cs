@@ -9,9 +9,6 @@ namespace System.Reflection.Metadata.Ecma335
     internal static class MethodDefOrRefTag
     {
         internal const int NumberOfBits = 1;
-        internal const TableMask TablesReferenced =
-          TableMask.MethodDef
-          | TableMask.MemberRef;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static EntityHandle ConvertToHandle(uint methodDefOrRef)

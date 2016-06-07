@@ -10,10 +10,6 @@ namespace System.Reflection.Metadata.Ecma335
     {
         internal const int NumberOfBits = 2;
         internal const uint TagMask = 0x00000003;
-        internal const TableMask TablesReferenced =
-          TableMask.TypeDef
-          | TableMask.MethodDef
-          | TableMask.Assembly;
         internal const uint TagToTokenTypeByteVector = (TokenTypeIds.TypeDef >> 24) | (TokenTypeIds.MethodDef >> 16) | (TokenTypeIds.Assembly >> 8);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

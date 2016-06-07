@@ -124,7 +124,7 @@ namespace System.Reflection.Metadata.Ecma335
         internal readonly int NumberOfRows;
         private readonly bool _IsFieldRefSizeSmall;
         private readonly bool _IsMethodRefSizeSmall;
-        private readonly bool _IsTypeDefOrRefRefSizeSmall;
+        private readonly bool _IsTypeDefOrRefOrSpecRefSizeSmall;
         private readonly bool _IsStringHeapRefSizeSmall;
         private readonly int _FlagsOffset;
         private readonly int _NameOffset;
@@ -139,7 +139,7 @@ namespace System.Reflection.Metadata.Ecma335
             int numberOfRows,
             int fieldRefSize,
             int methodRefSize,
-            int typeDefOrRefRefSize,
+            int typeDefOrRefOrSpecRefSize,
             int stringHeapRefSize,
             MemoryBlock containingBlock,
             int containingBlockOffset)
@@ -147,13 +147,13 @@ namespace System.Reflection.Metadata.Ecma335
             this.NumberOfRows = numberOfRows;
             _IsFieldRefSizeSmall = fieldRefSize == 2;
             _IsMethodRefSizeSmall = methodRefSize == 2;
-            _IsTypeDefOrRefRefSizeSmall = typeDefOrRefRefSize == 2;
+            _IsTypeDefOrRefOrSpecRefSizeSmall = typeDefOrRefOrSpecRefSize == 2;
             _IsStringHeapRefSizeSmall = stringHeapRefSize == 2;
             _FlagsOffset = 0;
             _NameOffset = _FlagsOffset + sizeof(uint);
             _NamespaceOffset = _NameOffset + stringHeapRefSize;
             _ExtendsOffset = _NamespaceOffset + stringHeapRefSize;
-            _FieldListOffset = _ExtendsOffset + typeDefOrRefRefSize;
+            _FieldListOffset = _ExtendsOffset + typeDefOrRefOrSpecRefSize;
             _MethodListOffset = _FieldListOffset + fieldRefSize;
             this.RowSize = _MethodListOffset + methodRefSize;
             this.Block = containingBlock.GetMemoryBlockAt(containingBlockOffset, this.RowSize * numberOfRows);
@@ -186,7 +186,7 @@ namespace System.Reflection.Metadata.Ecma335
         internal EntityHandle GetExtends(TypeDefinitionHandle handle)
         {
             int rowOffset = (handle.RowId - 1) * this.RowSize;
-            return TypeDefOrRefTag.ConvertToHandle(this.Block.PeekTaggedReference(rowOffset + _ExtendsOffset, _IsTypeDefOrRefRefSizeSmall));
+            return TypeDefOrRefTag.ConvertToHandle(this.Block.PeekTaggedReference(rowOffset + _ExtendsOffset, _IsTypeDefOrRefOrSpecRefSizeSmall));
         }
 
         internal int GetFieldStart(int rowId)

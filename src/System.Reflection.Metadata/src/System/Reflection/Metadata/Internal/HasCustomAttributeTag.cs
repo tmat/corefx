@@ -51,30 +51,6 @@ namespace System.Reflection.Metadata.Ecma335
             InvalidTokenType
         };
 
-        internal const TableMask TablesReferenced =
-          TableMask.MethodDef
-          | TableMask.Field
-          | TableMask.TypeRef
-          | TableMask.TypeDef
-          | TableMask.Param
-          | TableMask.InterfaceImpl
-          | TableMask.MemberRef
-          | TableMask.Module
-          | TableMask.DeclSecurity
-          | TableMask.Property
-          | TableMask.Event
-          | TableMask.StandAloneSig
-          | TableMask.ModuleRef
-          | TableMask.TypeSpec
-          | TableMask.Assembly
-          | TableMask.AssemblyRef
-          | TableMask.File
-          | TableMask.ExportedType
-          | TableMask.ManifestResource
-          | TableMask.GenericParam
-          | TableMask.GenericParamConstraint
-          | TableMask.MethodSpec;
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static EntityHandle ConvertToHandle(uint hasCustomAttribute)
         {

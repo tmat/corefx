@@ -9,10 +9,6 @@ namespace System.Reflection.Metadata.Ecma335
     internal static class ImplementationTag
     {
         internal const int NumberOfBits = 2;
-        internal const TableMask TablesReferenced =
-          TableMask.File
-          | TableMask.AssemblyRef
-          | TableMask.ExportedType;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static EntityHandle ConvertToHandle(uint implementation)

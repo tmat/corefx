@@ -735,7 +735,7 @@ namespace System.Reflection.Metadata.Ecma335
                 this.NumberOfRows,
                 this.RowSize,
                 _ParentOffset,
-                HasConstantTag.ConvertToTag(parentHandle),
+                (uint)CodedIndex.ToHasConstant(parentHandle),
                 _IsHasConstantRefSizeSmall);
 
             return ConstantHandle.FromRowId(foundRowNumber + 1);
@@ -819,6 +819,7 @@ namespace System.Reflection.Metadata.Ecma335
         internal void GetAttributeRange(EntityHandle parentHandle, out int firstImplRowId, out int lastImplRowId)
         {
             int startRowNumber, endRowNumber;
+            uint parentCodedIndex = (uint)CodedIndex.ToHasCustomAttribute(parentHandle);
 
             if (this.PtrTable != null)
             {
@@ -826,11 +827,10 @@ namespace System.Reflection.Metadata.Ecma335
                     this.PtrTable,
                     this.RowSize,
                     _ParentOffset,
-                    HasCustomAttributeTag.ConvertToTag(parentHandle),
+                    parentCodedIndex,
                     _IsHasCustomAttributeRefSizeSmall,
                     out startRowNumber,
-                    out endRowNumber
-                );
+                    out endRowNumber);
             }
             else
             {
@@ -838,11 +838,10 @@ namespace System.Reflection.Metadata.Ecma335
                     this.NumberOfRows,
                     this.RowSize,
                     _ParentOffset,
-                    HasCustomAttributeTag.ConvertToTag(parentHandle),
+                    parentCodedIndex,
                     _IsHasCustomAttributeRefSizeSmall,
                     out startRowNumber,
-                    out endRowNumber
-                );
+                    out endRowNumber);
             }
 
             if (startRowNumber == -1)
@@ -915,7 +914,7 @@ namespace System.Reflection.Metadata.Ecma335
                 this.NumberOfRows,
                 this.RowSize,
                 _ParentOffset,
-                HasFieldMarshalTag.ConvertToTag(handle),
+                (uint)CodedIndex.ToHasFieldMarshal(handle),
                 _IsHasFieldMarshalRefSizeSmall);
 
             return foundRowNumber + 1;
@@ -988,7 +987,7 @@ namespace System.Reflection.Metadata.Ecma335
                 this.NumberOfRows,
                 this.RowSize,
                 _ParentOffset,
-                HasDeclSecurityTag.ConvertToTag(parentToken),
+                (uint)CodedIndex.ToHasDeclSecurity(parentToken),
                 _IsHasDeclSecurityRefSizeSmall,
                 out startRowNumber,
                 out endRowNumber);
@@ -1486,14 +1485,14 @@ namespace System.Reflection.Metadata.Ecma335
         internal int FindSemanticMethodsForEvent(EventDefinitionHandle eventDef, out ushort methodCount)
         {
             methodCount = 0;
-            uint searchCodedTag = HasSemanticsTag.ConvertEventHandleToTag(eventDef);
+            uint searchCodedTag = (uint)CodedIndex.ToHasSemantics(eventDef);
             return this.BinarySearchTag(searchCodedTag, ref methodCount);
         }
 
         internal int FindSemanticMethodsForProperty(PropertyDefinitionHandle propertyDef, out ushort methodCount)
         {
             methodCount = 0;
-            uint searchCodedTag = HasSemanticsTag.ConvertPropertyHandleToTag(propertyDef);
+            uint searchCodedTag = (uint)CodedIndex.ToHasSemantics(propertyDef);
             return this.BinarySearchTag(searchCodedTag, ref methodCount);
         }
 
@@ -1727,7 +1726,7 @@ namespace System.Reflection.Metadata.Ecma335
 
         internal int FindImplForMethod(MethodDefinitionHandle methodDef)
         {
-            uint searchCodedTag = MemberForwardedTag.ConvertMethodDefToTag(methodDef);
+            uint searchCodedTag = (uint)CodedIndex.ToMemberForwarded(methodDef);
             return this.BinarySearchTag(searchCodedTag);
         }
 
@@ -2446,7 +2445,7 @@ namespace System.Reflection.Metadata.Ecma335
         internal GenericParameterHandleCollection FindGenericParametersForType(TypeDefinitionHandle typeDef)
         {
             ushort count = 0;
-            uint searchCodedTag = TypeOrMethodDefTag.ConvertTypeDefRowIdToTag(typeDef);
+            uint searchCodedTag = (uint)CodedIndex.ToTypeOrMethodDef(typeDef);
             int startRid = this.BinarySearchTag(searchCodedTag, ref count);
 
             return new GenericParameterHandleCollection(startRid, count);
@@ -2455,7 +2454,7 @@ namespace System.Reflection.Metadata.Ecma335
         internal GenericParameterHandleCollection FindGenericParametersForMethod(MethodDefinitionHandle methodDef)
         {
             ushort count = 0;
-            uint searchCodedTag = TypeOrMethodDefTag.ConvertMethodDefToTag(methodDef);
+            uint searchCodedTag = (uint)CodedIndex.ToTypeOrMethodDef(methodDef);
             int startRid = this.BinarySearchTag(searchCodedTag, ref count);
 
             return new GenericParameterHandleCollection(startRid, count);

@@ -493,7 +493,7 @@ namespace System.Reflection.Metadata.Ecma335
                 NumberOfRows,
                 RowSize,
                 ParentOffset,
-                HasCustomDebugInformationTag.ConvertToTag(parentHandle),
+                (uint)CodedIndex.ToHasCustomDebugInformation(parentHandle),
                 _isHasCustomDebugInformationRefSizeSmall,
                 out startRowNumber,
                 out endRowNumber

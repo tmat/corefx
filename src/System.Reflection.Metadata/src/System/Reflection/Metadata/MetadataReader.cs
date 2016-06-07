@@ -584,19 +584,19 @@ namespace System.Reflection.Metadata
             int propertyRefSizeSorted = GetReferenceSize(rowCounts, TableIndex.PropertyPtr) > SmallIndexSize ? LargeIndexSize : GetReferenceSize(rowCounts, TableIndex.Property);
 
             // Compute the coded token ref sizes
-            int typeDefOrRefRefSize = ComputeCodedTokenSize(TypeDefOrRefTag.LargeRowSize, rowCounts, TypeDefOrRefTag.TablesReferenced);
-            int hasConstantRefSize = ComputeCodedTokenSize(HasConstantTag.LargeRowSize, rowCounts, HasConstantTag.TablesReferenced);
-            int hasCustomAttributeRefSize = ComputeCodedTokenSize(HasCustomAttributeTag.LargeRowSize, rowCounts, HasCustomAttributeTag.TablesReferenced);
-            int hasFieldMarshalRefSize = ComputeCodedTokenSize(HasFieldMarshalTag.LargeRowSize, rowCounts, HasFieldMarshalTag.TablesReferenced);
-            int hasDeclSecurityRefSize = ComputeCodedTokenSize(HasDeclSecurityTag.LargeRowSize, rowCounts, HasDeclSecurityTag.TablesReferenced);
-            int memberRefParentRefSize = ComputeCodedTokenSize(MemberRefParentTag.LargeRowSize, rowCounts, MemberRefParentTag.TablesReferenced);
-            int hasSemanticsRefSize = ComputeCodedTokenSize(HasSemanticsTag.LargeRowSize, rowCounts, HasSemanticsTag.TablesReferenced);
-            int methodDefOrRefRefSize = ComputeCodedTokenSize(MethodDefOrRefTag.LargeRowSize, rowCounts, MethodDefOrRefTag.TablesReferenced);
-            int memberForwardedRefSize = ComputeCodedTokenSize(MemberForwardedTag.LargeRowSize, rowCounts, MemberForwardedTag.TablesReferenced);
-            int implementationRefSize = ComputeCodedTokenSize(ImplementationTag.LargeRowSize, rowCounts, ImplementationTag.TablesReferenced);
-            int customAttributeTypeRefSize = ComputeCodedTokenSize(CustomAttributeTypeTag.LargeRowSize, rowCounts, CustomAttributeTypeTag.TablesReferenced);
-            int resolutionScopeRefSize = ComputeCodedTokenSize(ResolutionScopeTag.LargeRowSize, rowCounts, ResolutionScopeTag.TablesReferenced);
-            int typeOrMethodDefRefSize = ComputeCodedTokenSize(TypeOrMethodDefTag.LargeRowSize, rowCounts, TypeOrMethodDefTag.TablesReferenced);
+            int typeDefOrRefRefSize = ComputeCodedTokenSize(TypeDefOrRefTag.NumberOfBits, rowCounts, TypeDefOrRefTag.TablesReferenced);
+            int hasConstantRefSize = ComputeCodedTokenSize(HasConstantTag.NumberOfBits, rowCounts, HasConstantTag.TablesReferenced);
+            int hasCustomAttributeRefSize = ComputeCodedTokenSize(HasCustomAttributeTag.NumberOfBits, rowCounts, HasCustomAttributeTag.TablesReferenced);
+            int hasFieldMarshalRefSize = ComputeCodedTokenSize(HasFieldMarshalTag.NumberOfBits, rowCounts, HasFieldMarshalTag.TablesReferenced);
+            int hasDeclSecurityRefSize = ComputeCodedTokenSize(HasDeclSecurityTag.NumberOfBits, rowCounts, HasDeclSecurityTag.TablesReferenced);
+            int memberRefParentRefSize = ComputeCodedTokenSize(MemberRefParentTag.NumberOfBits, rowCounts, MemberRefParentTag.TablesReferenced);
+            int hasSemanticsRefSize = ComputeCodedTokenSize(HasSemanticsTag.NumberOfBits, rowCounts, HasSemanticsTag.TablesReferenced);
+            int methodDefOrRefRefSize = ComputeCodedTokenSize(MethodDefOrRefTag.NumberOfBits, rowCounts, MethodDefOrRefTag.TablesReferenced);
+            int memberForwardedRefSize = ComputeCodedTokenSize(MemberForwardedTag.NumberOfBits, rowCounts, MemberForwardedTag.TablesReferenced);
+            int implementationRefSize = ComputeCodedTokenSize(ImplementationTag.NumberOfBits, rowCounts, ImplementationTag.TablesReferenced);
+            int customAttributeTypeRefSize = ComputeCodedTokenSize(CustomAttributeTypeTag.NumberOfBits, rowCounts, CustomAttributeTypeTag.TablesReferenced);
+            int resolutionScopeRefSize = ComputeCodedTokenSize(ResolutionScopeTag.NumberOfBits, rowCounts, ResolutionScopeTag.TablesReferenced);
+            int typeOrMethodDefRefSize = ComputeCodedTokenSize(TypeOrMethodDefTag.NumberOfBits, rowCounts, TypeOrMethodDefTag.TablesReferenced);
 
             // Compute HeapRef Sizes
             int stringHeapRefSize = (heapSizes & HeapSizes.StringHeapLarge) == HeapSizes.StringHeapLarge ? LargeIndexSize : SmallIndexSize;
@@ -803,13 +803,14 @@ namespace System.Reflection.Metadata
             return rowCounts;
         }
 
-        private int ComputeCodedTokenSize(int largeRowSize, int[] rowCounts, TableMask tablesReferenced)
+        private int ComputeCodedTokenSize(int tagBitCount, int[] rowCounts, TableMask tablesReferenced)
         {
             if (IsMinimalDelta)
             {
                 return LargeIndexSize;
             }
 
+            int largeRowSize = 1 << (16 - tagBitCount);
             bool isAllReferencedTablesSmall = true;
             ulong tablesReferencedMask = (ulong)tablesReferenced;
             for (int tableIndex = 0; tableIndex < TableIndexExtensions.Count; tableIndex++)

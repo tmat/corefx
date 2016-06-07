@@ -21,21 +21,21 @@ namespace System.Reflection.Metadata.Ecma335
         private static int ToCodedIndex(this int rowId, TypeOrMethodDef tag) => (rowId << (int)TypeOrMethodDef.__bits) | (int)tag;
         private static int ToCodedIndex(this int rowId, HasCustomDebugInformation tag) => (rowId << (int)HasCustomDebugInformation.__bits) | (int)tag;
 
-        public static int ToHasCustomAttribute(EntityHandle handle) => MetadataTokens.GetRowNumber(handle).ToCodedIndex(ToHasCustomAttributeTag(handle.Kind));
-        public static int ToHasConstant(EntityHandle handle) => MetadataTokens.GetRowNumber(handle).ToCodedIndex(ToHasConstantTag(handle.Kind));
-        public static int ToCustomAttributeType(EntityHandle handle) => MetadataTokens.GetRowNumber(handle).ToCodedIndex(ToCustomAttributeTypeTag(handle.Kind));
-        public static int ToHasDeclSecurity(EntityHandle handle) => MetadataTokens.GetRowNumber(handle).ToCodedIndex(ToHasDeclSecurityTag(handle.Kind));
-        public static int ToHasFieldMarshal(EntityHandle handle) => MetadataTokens.GetRowNumber(handle).ToCodedIndex(ToHasFieldMarshalTag(handle.Kind));
-        public static int ToHasSemantics(EntityHandle handle) => MetadataTokens.GetRowNumber(handle).ToCodedIndex(ToHasSemanticsTag(handle.Kind));
-        public static int ToImplementation(EntityHandle handle) => MetadataTokens.GetRowNumber(handle).ToCodedIndex(ToImplementationTag(handle.Kind));
-        public static int ToMemberForwarded(EntityHandle handle) => MetadataTokens.GetRowNumber(handle).ToCodedIndex(ToMemberForwardedTag(handle.Kind));
-        public static int ToMemberRefParent(EntityHandle handle) => MetadataTokens.GetRowNumber(handle).ToCodedIndex(ToMemberRefParentTag(handle.Kind));
-        public static int ToMethodDefOrRef(EntityHandle handle) => MetadataTokens.GetRowNumber(handle).ToCodedIndex(ToMethodDefOrRefTag(handle.Kind));
-        public static int ToResolutionScope(EntityHandle handle) => MetadataTokens.GetRowNumber(handle).ToCodedIndex(ToResolutionScopeTag(handle.Kind));
-        public static int ToTypeDefOrRef(EntityHandle handle) => MetadataTokens.GetRowNumber(handle).ToCodedIndex(ToTypeDefOrRefTag(handle.Kind));
-        public static int ToTypeDefOrRefOrSpec(EntityHandle handle) => MetadataTokens.GetRowNumber(handle).ToCodedIndex(ToTypeDefOrRefOrSpecTag(handle.Kind));
-        public static int ToTypeOrMethodDef(EntityHandle handle) => MetadataTokens.GetRowNumber(handle).ToCodedIndex(ToTypeOrMethodDefTag(handle.Kind));
-        public static int ToHasCustomDebugInformation(EntityHandle handle) => MetadataTokens.GetRowNumber(handle).ToCodedIndex(ToHasCustomDebugInformationTag(handle.Kind));
+        public static int ToHasCustomAttribute(EntityHandle handle) => handle.RowId.ToCodedIndex(ToHasCustomAttributeTag(handle.Kind));
+        public static int ToHasConstant(EntityHandle handle) => handle.RowId.ToCodedIndex(ToHasConstantTag(handle.Kind));
+        public static int ToCustomAttributeType(EntityHandle handle) => handle.RowId.ToCodedIndex(ToCustomAttributeTypeTag(handle.Kind));
+        public static int ToHasDeclSecurity(EntityHandle handle) => handle.RowId.ToCodedIndex(ToHasDeclSecurityTag(handle.Kind));
+        public static int ToHasFieldMarshal(EntityHandle handle) => handle.RowId.ToCodedIndex(ToHasFieldMarshalTag(handle.Kind));
+        public static int ToHasSemantics(EntityHandle handle) => handle.RowId.ToCodedIndex(ToHasSemanticsTag(handle.Kind));
+        public static int ToImplementation(EntityHandle handle) => handle.RowId.ToCodedIndex(ToImplementationTag(handle.Kind));
+        public static int ToMemberForwarded(EntityHandle handle) => handle.RowId.ToCodedIndex(ToMemberForwardedTag(handle.Kind));
+        public static int ToMemberRefParent(EntityHandle handle) => handle.RowId.ToCodedIndex(ToMemberRefParentTag(handle.Kind));
+        public static int ToMethodDefOrRef(EntityHandle handle) => handle.RowId.ToCodedIndex(ToMethodDefOrRefTag(handle.Kind));
+        public static int ToResolutionScope(EntityHandle handle) => handle.RowId.ToCodedIndex(ToResolutionScopeTag(handle.Kind));
+        public static int ToTypeDefOrRef(EntityHandle handle) => handle.RowId.ToCodedIndex(ToTypeDefOrRefTag(handle.Kind));
+        public static int ToTypeDefOrRefOrSpec(EntityHandle handle) => handle.RowId.ToCodedIndex(ToTypeDefOrRefOrSpecTag(handle.Kind));
+        public static int ToTypeOrMethodDef(EntityHandle handle) => handle.RowId.ToCodedIndex(ToTypeOrMethodDefTag(handle.Kind));
+        public static int ToHasCustomDebugInformation(EntityHandle handle) => handle.RowId.ToCodedIndex(ToHasCustomDebugInformationTag(handle.Kind));
 
         private enum HasCustomAttribute
         {

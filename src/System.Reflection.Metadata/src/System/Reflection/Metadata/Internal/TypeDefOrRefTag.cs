@@ -9,12 +9,6 @@ namespace System.Reflection.Metadata.Ecma335
     internal static class TypeDefOrRefTag
     {
         internal const int NumberOfBits = 2;
-        internal const int LargeRowSize = 0x00000001 << (16 - NumberOfBits);
-        internal const uint TypeDef = 0x00000000;
-        internal const uint TypeRef = 0x00000001;
-        internal const uint TypeSpec = 0x00000002;
-        internal const uint TagMask = 0x00000003;
-        internal const uint TagToTokenTypeByteVector = TokenTypeIds.TypeDef >> 24 | TokenTypeIds.TypeRef >> 16 | TokenTypeIds.TypeSpec >> 8;
         internal const TableMask TablesReferenced =
           TableMask.TypeDef
           | TableMask.TypeRef
@@ -24,6 +18,9 @@ namespace System.Reflection.Metadata.Ecma335
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static EntityHandle ConvertToHandle(uint typeDefOrRefTag)
         {
+            const uint TagMask = 0x00000003;
+            const uint TagToTokenTypeByteVector = TokenTypeIds.TypeDef >> 24 | TokenTypeIds.TypeRef >> 16 | TokenTypeIds.TypeSpec >> 8;
+
             uint tokenType = (TagToTokenTypeByteVector >> ((int)(typeDefOrRefTag & TagMask) << 3)) << TokenTypeIds.RowIdBitCount;
             uint rowId = (typeDefOrRefTag >> NumberOfBits);
 

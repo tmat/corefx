@@ -9,10 +9,6 @@ namespace System.Reflection.Metadata.Ecma335
     internal static class HasDeclSecurityTag
     {
         internal const int NumberOfBits = 2;
-        internal const int LargeRowSize = 0x00000001 << (16 - NumberOfBits);
-        internal const uint TypeDef = 0x00000000;
-        internal const uint MethodDef = 0x00000001;
-        internal const uint Assembly = 0x00000002;
         internal const uint TagMask = 0x00000003;
         internal const TableMask TablesReferenced =
           TableMask.TypeDef
@@ -32,25 +28,6 @@ namespace System.Reflection.Metadata.Ecma335
             }
 
             return new EntityHandle(tokenType | rowId);
-        }
-
-        internal static uint ConvertToTag(EntityHandle handle)
-        {
-            uint tokenType = handle.Type;
-            uint rowId = (uint)handle.RowId;
-            switch (tokenType >> TokenTypeIds.RowIdBitCount)
-            {
-                case TokenTypeIds.TypeDef >> TokenTypeIds.RowIdBitCount:
-                    return rowId << NumberOfBits | TypeDef;
-
-                case TokenTypeIds.MethodDef >> TokenTypeIds.RowIdBitCount:
-                    return rowId << NumberOfBits | MethodDef;
-
-                case TokenTypeIds.Assembly >> TokenTypeIds.RowIdBitCount:
-                    return rowId << NumberOfBits | Assembly;
-            }
-
-            return 0;
         }
     }
 }

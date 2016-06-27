@@ -52,7 +52,7 @@ namespace System.Reflection.Metadata.Ecma335
             _labels = ImmutableArray.CreateBuilder<int>();
         }
 
-        internal void Clear()
+        public void Clear()
         {
             _branches.Clear();
             _labels.Clear();
@@ -102,6 +102,9 @@ namespace System.Reflection.Metadata.Ecma335
 
         internal void FixupBranches(BlobBuilder srcBuilder, BlobBuilder dstBuilder)
         {
+            // TODO: This is incorrect. We need to account for branches changing size when they are 
+            // jumping over other branches that might expand.
+
             int srcOffset = 0;
             var branch = _branches[0];
             int branchIndex = 0;

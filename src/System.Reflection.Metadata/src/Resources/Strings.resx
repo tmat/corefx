@@ -393,6 +393,9 @@
   <data name="BranchBuilderNotAvailable" xml:space="preserve">
     <value>Can't emit a branch, the current encoder not created with a branch builder.</value>
   </data>
+  <data name="ExceptionRegionBuilderNotAvailable" xml:space="preserve">
+    <value>Can't emit an exception region, the current encoder not created with a exception region builder.</value>
+  </data>
   <data name="BaseReaderMustBeFullMetadataReader" xml:space="preserve">
     <value>Base reader must be a full metadata reader.</value>
   </data>

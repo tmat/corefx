@@ -61,6 +61,12 @@ namespace System.Reflection
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
+        internal static void ExceptionRegionBuilderNotAvailable()
+        {
+            throw new InvalidOperationException(SR.ExceptionRegionBuilderNotAvailable);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
         internal static void InvalidOperationBuilderAlreadyLinked()
         {
             throw new InvalidOperationException(SR.BuilderAlreadyLinked);

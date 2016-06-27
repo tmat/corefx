@@ -138,9 +138,5 @@ namespace System.Reflection.Metadata.Ecma335
                     break;
             }
         }
-
-        public void EndRegions()
-        {
-        }
     }
 }

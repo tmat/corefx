@@ -271,7 +271,6 @@ namespace System.Reflection.PortableExecutable.Tests
             var eh = body.WriteInstructions(codeBuilder, branchBuilder, out mainBodyOffset);
             eh.StartRegions();
             eh.AddFinally(tryOffset, handlerOffset - tryOffset, handlerOffset, handlerEnd - handlerOffset);
-            eh.EndRegions();
 
             codeBuilder.Clear();
             branchBuilder.Clear();

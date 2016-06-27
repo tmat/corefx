@@ -113,7 +113,6 @@ namespace System.Reflection.Metadata.Ecma335.Tests
             var bodyBuilder = new BlobBuilder();
             var codeBuilder = new BlobBuilder();
             var branchBuilder = new BranchBuilder();
-            var il = new InstructionEncoder(codeBuilder, branchBuilder);
 
             var bodyEncoder = new MethodBodyEncoder(
                 bodyBuilder,
@@ -125,6 +124,8 @@ namespace System.Reflection.Metadata.Ecma335.Tests
             Assert.True(bodyEncoder.IsTiny(10));
             Assert.True(bodyEncoder.IsTiny(63));
             Assert.False(bodyEncoder.IsTiny(64));
+
+            var il = new InstructionEncoder(codeBuilder, branchBuilder);
 
             codeBuilder.WriteBytes(1, 62);
             var l1 = il.DefineLabel();
@@ -237,6 +238,39 @@ namespace System.Reflection.Metadata.Ecma335.Tests
                 0x01, 0x01, 0x01, 0x01,
                 (byte)ILOpCode.Brfalse, 0xFD, 0xFE, 0xFF, 0xFF,
             }, dstBuilder.ToArray());
+        }
+
+        [Fact]
+        public void Branches2()
+        {
+            var codeBuilder = new BlobBuilder();
+            var branchBuilder = new BranchBuilder();
+
+            var il = new InstructionEncoder(codeBuilder, branchBuilder);
+            var label = il.DefineLabel();
+            var longJmp = il.DefineLabel();
+
+            il.MarkLabel(label);
+            il.OpCode(ILOpCode.Nop);
+            il.Branch(ILOpCode.Br, longJmp);
+            il.Branch(ILOpCode.Br, label);  
+            for (int i = 0; i < 256; i++)
+            {
+                il.OpCode(ILOpCode.Nop);
+            }
+
+            il.MarkLabel(longJmp);
+            il.OpCode(ILOpCode.Ret);
+
+            var dstBuilder = new BlobBuilder();
+            branchBuilder.FixupBranches(codeBuilder, dstBuilder);
+
+            AssertEx.Equal(new byte[]
+            {
+                0x00,
+                (byte)ILOpCode.Br, 0xFF, 0x00, 0x00, 0x00,
+                (byte)ILOpCode.Br_s, unchecked((byte)(-8))
+            }, dstBuilder.Slice(0, -257));
         }
 
         [Fact]

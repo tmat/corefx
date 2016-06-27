@@ -8,11 +8,11 @@ namespace System.Reflection.Metadata.Ecma335
     {
         public BlobBuilder Builder { get; }
 
-        public MethodBodiesEncoder(BlobBuilder builder = null)
+        public MethodBodiesEncoder(BlobBuilder builder)
         {
             if (builder == null)
             {
-                builder = new BlobBuilder();
+                Throw.ArgumentNull(nameof(builder));
             }
 
             // Fat methods are 4-byte aligned. We calculate the alignment relative to the start of the ILStream.
@@ -21,7 +21,7 @@ namespace System.Reflection.Metadata.Ecma335
             // "At the next 4-byte boundary following the method body can be extra method data sections."
             if ((builder.Count % 4) != 0)
             {
-                throw new ArgumentException(SR.BuilderMustAligned, nameof(builder));
+                Throw.InvalidArgument(SR.BuilderMustAligned, nameof(builder));
             }
 
             Builder = builder;

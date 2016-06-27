@@ -7,12 +7,15 @@ namespace System.Reflection.Metadata.Ecma335
     public struct InstructionEncoder
     {
         public BlobBuilder Builder { get; }
-        private readonly BranchBuilder _branchBuilderOpt;
 
-        public InstructionEncoder(BlobBuilder builder, BranchBuilder branchBuilder = null)
+        private readonly BranchBuilder _branchBuilderOpt;
+        private readonly ExceptionRegionBuilder _exceptionBuilderOpt;
+
+        public InstructionEncoder(BlobBuilder builder, BranchBuilder branchBuilder = null, ExceptionRegionBuilder exceptionBuilder = null)
         {
             Builder = builder;
             _branchBuilderOpt = branchBuilder;
+            _exceptionBuilderOpt = exceptionBuilder;
         }
 
         public int Offset => Builder.Count;
@@ -267,5 +270,69 @@ namespace System.Reflection.Metadata.Ecma335
 
             return _branchBuilderOpt;
         }
+
+#if F
+        public void Try()
+        {
+            GetExceptionBuilder().Try(Offset);
+        }
+
+        public void EndTry()
+        {
+            GetExceptionBuilder().EndTry(Offset);
+        }
+
+        public void Catch(EntityHandle catchType)
+        {
+            GetExceptionBuilder().StartHandler(Offset, ExceptionRegionKind.Catch, catchType);
+        }
+
+        public void EndCatch()
+        {
+            GetExceptionBuilder().EndHandler(Offset, ExceptionRegionKind.Catch);
+        }
+
+        public void FilterCondition()
+        {
+            GetExceptionBuilder().StartFilter(Offset);
+        }
+
+        public void EndFilterCondition()
+        {
+            OpCode(ILOpCode.Endfilter);
+            GetExceptionBuilder().StartHandler(Offset, ExceptionRegionKind.Filter);
+        }
+
+        public void Fault()
+        {
+            GetExceptionBuilder().StartHandler(Offset, ExceptionRegionKind.Fault);
+        }
+
+        public void EndFault()
+        {
+            GetExceptionBuilder().EndHandler(Offset, ExceptionRegionKind.Fault);
+        }
+
+        public void Finally()
+        {
+            GetExceptionBuilder().StartHandler(Offset, ExceptionRegionKind.Finally);
+        }
+
+        public void EndFinally()
+        {
+            OpCode(ILOpCode.Endfinally);
+            GetExceptionBuilder().EndHandler(Offset, ExceptionRegionKind.Finally);
+        }
+
+        private ExceptionRegionBuilder GetExceptionBuilder()
+        {
+            if (_branchBuilderOpt == null)
+            {
+                Throw.ExceptionRegionBuilderNotAvailable();
+            }
+
+            return _exceptionBuilderOpt;
+        }
+#endif
     }
 }

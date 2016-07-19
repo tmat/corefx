@@ -17,10 +17,6 @@ namespace System.Reflection.PortableExecutable
 
         private const int DefaultStrongNameSignatureSize = 128;
 
-        private const string TextSectionName = ".text";
-        private const string ResourceSectionName = ".rsrc";
-        private const string RelocationSectionName = ".reloc";
-
         private readonly PEDirectoriesBuilder _peDirectoriesBuilder;
         private readonly MetadataRootBuilder _metadataRootBuilder;
         private readonly BlobBuilder _ilStream;
@@ -97,16 +93,16 @@ namespace System.Reflection.PortableExecutable
         protected override ImmutableArray<Section> CreateSections()
         {
             var builder = ImmutableArray.CreateBuilder<Section>(3);
-            builder.Add(new Section(TextSectionName, SectionCharacteristics.MemRead | SectionCharacteristics.MemExecute | SectionCharacteristics.ContainsCode));
+            builder.Add(new Section(SectionNames.TextSection, SectionCharacteristics.MemRead | SectionCharacteristics.MemExecute | SectionCharacteristics.ContainsCode));
 
             if (_nativeResourcesOpt != null)
             {
-                builder.Add(new Section(ResourceSectionName, SectionCharacteristics.MemRead | SectionCharacteristics.ContainsInitializedData));
+                builder.Add(new Section(SectionNames.ResourceSection, SectionCharacteristics.MemRead | SectionCharacteristics.ContainsInitializedData));
             }
 
             if (Header.Machine == Machine.I386 || Header.Machine == 0)
             {
-                builder.Add(new Section(RelocationSectionName, SectionCharacteristics.MemRead | SectionCharacteristics.MemDiscardable | SectionCharacteristics.ContainsInitializedData));
+                builder.Add(new Section(SectionNames.RelocationSection, SectionCharacteristics.MemRead | SectionCharacteristics.MemDiscardable | SectionCharacteristics.ContainsInitializedData));
             }
 
             return builder.ToImmutable();
@@ -116,13 +112,13 @@ namespace System.Reflection.PortableExecutable
         {
             switch (name)
             {
-                case TextSectionName:
+                case SectionNames.TextSection:
                     return SerializeTextSection(location);
 
-                case ResourceSectionName:
+                case SectionNames.ResourceSection:
                     return SerializeResourceSection(location);
 
-                case RelocationSectionName:
+                case SectionNames.RelocationSection:
                     return SerializeRelocationSection(location);
 
                 default:

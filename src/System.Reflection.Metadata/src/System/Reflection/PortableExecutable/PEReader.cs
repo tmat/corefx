@@ -334,9 +334,9 @@ namespace System.Reflection.PortableExecutable
         }
 
         /// <exception cref="IOException">IO error while reading from the underlying stream.</exception>
-        private AbstractMemoryBlock GetPESectionBlock(int index)
+        private AbstractMemoryBlock GetPESectionBlock(int sectionIndex)
         {
-            Debug.Assert(index >= 0 && index < PEHeaders.SectionHeaders.Length);
+            Debug.Assert(sectionIndex >= 0 && sectionIndex < PEHeaders.SectionHeaders.Length);
             Debug.Assert(_peImage != null);
 
             if (_lazyPESectionBlocks == null)
@@ -345,16 +345,16 @@ namespace System.Reflection.PortableExecutable
             }
 
             var newBlock = _peImage.GetMemoryBlock(
-                PEHeaders.SectionHeaders[index].PointerToRawData,
-                PEHeaders.SectionHeaders[index].SizeOfRawData);
+                PEHeaders.SectionHeaders[sectionIndex].PointerToRawData,
+                PEHeaders.SectionHeaders[sectionIndex].SizeOfRawData);
 
-            if (Interlocked.CompareExchange(ref _lazyPESectionBlocks[index], newBlock, null) != null)
+            if (Interlocked.CompareExchange(ref _lazyPESectionBlocks[sectionIndex], newBlock, null) != null)
             {
                 // another thread created the block already, we need to dispose ours:
                 newBlock.Dispose();
             }
 
-            return _lazyPESectionBlocks[index];
+            return _lazyPESectionBlocks[sectionIndex];
         }
 
         /// <summary>
@@ -410,27 +410,82 @@ namespace System.Reflection.PortableExecutable
         /// <exception cref="IOException">IO error while reading from the underlying stream.</exception>
         public PEMemoryBlock GetSectionData(int relativeVirtualAddress)
         {
-            var sectionIndex = PEHeaders.GetContainingSectionIndex(relativeVirtualAddress);
+            int sectionIndex = PEHeaders.GetContainingSectionIndex(relativeVirtualAddress);
             if (sectionIndex < 0)
             {
                 return default(PEMemoryBlock);
             }
 
             int relativeOffset = relativeVirtualAddress - PEHeaders.SectionHeaders[sectionIndex].VirtualAddress;
-            int size = PEHeaders.SectionHeaders[sectionIndex].VirtualSize - relativeOffset;
+            return GetSectionData(sectionIndex, relativeOffset);
+        }
 
-            AbstractMemoryBlock block;
-            if (_peImage != null)
+        /// <summary>
+        /// Loads PE section of the specified name into memory and returns a memory block that spans the section.
+        /// </summary>
+        /// <param name="sectionName">Name of the section.</param>
+        /// <returns>
+        /// An empty block if no section of the given <paramref name="sectionName"/> exists in this PE image.
+        /// </returns>
+        public PEMemoryBlock GetSectionData(string sectionName)
+        {
+            if (sectionName == null)
             {
-                block = GetPESectionBlock(sectionIndex);
-            }
-            else
-            {
-                block = GetEntireImageBlock();
-                relativeOffset += PEHeaders.SectionHeaders[sectionIndex].PointerToRawData;
+                Throw.ArgumentNull(nameof(sectionName));
             }
 
-            return new PEMemoryBlock(block, relativeOffset);
+            int sectionIndex = PEHeaders.IndexOfSection(sectionName);
+            if (sectionIndex < 0)
+            {
+                return default(PEMemoryBlock);
+            }
+
+            return GetSectionData(sectionIndex, sectionRelativeOffset: 0);
+        }
+
+        /// <summary>
+        /// Loads PE section of the specified index into memory and returns a memory block that spans the section or its part.
+        /// </summary>
+        /// <param name="sectionIndex">Index of the section in <see cref="PEHeaders.SectionHeaders"/>.</param>
+        /// <param name="sectionRelativeOffset">An offset within the section that the resulting memory block should start at.</param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="sectionIndex"/> is not within the bounds of <see cref="PEHeaders.SectionHeaders"/>, or
+        /// <paramref name="sectionRelativeOffset"/> is smaller than 0 or greater than <see cref="SectionHeader.VirtualSize"/>.
+        /// </exception>
+        public PEMemoryBlock GetSectionData(int sectionIndex, int sectionRelativeOffset)
+        {
+            if (sectionIndex < 0 || sectionIndex >= PEHeaders.SectionHeaders.Length)
+            {
+                Throw.ArgumentOutOfRange(nameof(sectionIndex));
+            }
+
+            if (sectionRelativeOffset < 0)
+            {
+                Throw.ArgumentOutOfRange(nameof(sectionRelativeOffset));
+            }
+
+            int sizeInImage = PEHeaders.SectionHeaders[sectionIndex].SizeOfRawData;
+            int sizeInMemory = PEHeaders.SectionHeaders[sectionIndex].VirtualSize;
+
+            if (sectionRelativeOffset > sizeInImage && sectionRelativeOffset > sizeInMemory)
+            {
+                Throw.ArgumentOutOfRange(nameof(sectionRelativeOffset));
+            }
+
+            if (sectionRelativeOffset > sizeInImage)
+            {
+                return default(PEMemoryBlock);
+            }
+
+            if (_peImage == null)
+            {
+                throw new InvalidOperationException(SR.PEImageNotAvailable);
+            }
+
+            var block = GetPESectionBlock(sectionIndex);
+            Debug.Assert(block.Size == sizeInImage);
+
+            return new PEMemoryBlock(block, sectionRelativeOffset);
         }
 
         /// <summary>

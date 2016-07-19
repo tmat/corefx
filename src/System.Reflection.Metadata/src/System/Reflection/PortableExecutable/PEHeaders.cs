@@ -336,7 +336,7 @@ namespace System.Reflection.PortableExecutable
             return -1;
         }
 
-        private int IndexOfSection(string name)
+        internal int IndexOfSection(string name)
         {
             for (int i = 0; i < SectionHeaders.Length; i++)
             {

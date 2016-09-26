@@ -319,5 +319,62 @@ namespace System.Reflection.Metadata.Tests
                 Assert.Equal(bytesRead, 0);
             }
         }
+
+        [Fact]
+        public unsafe void IndexOfUTF8()
+        {
+            byte[] buffer = new byte[] 
+            {
+                0x20,                        // 0: U+0020
+                0x7f,                        // 1: U+007F
+                0xC2, 0xA2,                  // 2: U+00A2
+                0xE2, 0x82, 0xAC,            // 4: U+20AC 
+                0xF0, 0x90, 0x8D, 0x88,      // 7: U+10348
+                0x00,                        // 11: U+0000
+                0xF0, 0x90, 0x8D,            // 12: invalid -- should be 4 bytes
+                0xE2, 0x82, 0xAD,            // 15: U+20AD 
+            };
+
+            fixed (byte* bufferPtr = buffer)
+            {
+                var reader = new BlobReader(bufferPtr, buffer.Length);
+
+                Assert.Equal(0, reader.IndexOfUTF8(0x20));
+                Assert.Equal(1, reader.IndexOfUTF8(0x7F));
+                Assert.Equal(2, reader.IndexOfUTF8(0xA2));
+                Assert.Equal(4, reader.IndexOfUTF8(0x20AC));
+                Assert.Equal(7, reader.IndexOfUTF8(0x10348));
+                Assert.Equal(11, reader.IndexOfUTF8(0));
+                Assert.Equal(15, reader.IndexOfUTF8(0x20AD));
+                Assert.Equal(-1, reader.IndexOfUTF8(1));
+                Assert.Equal(-1, reader.IndexOfUTF8(0xAD));
+                Assert.Equal(-1, reader.IndexOfUTF8(0xE2));
+
+                Assert.Equal(0, reader.Offset);
+                var s = reader.ReadUTF8(buffer.Length);
+                Assert.Equal("\U00000020\U0000007F\U000000A2\U000020AC\U00010348\U00000000\U0000FFFD\U000020AD", s);
+            }
+        }
+
+        [Fact]
+        public unsafe void IndexOf()
+        {
+            byte[] buffer = new byte[]
+            {
+                0xF0, 0x90, 0x8D,
+            };
+
+            fixed (byte* bufferPtr = buffer)
+            {
+                var reader = new BlobReader(bufferPtr, buffer.Length);
+
+                Assert.Equal(0, reader.IndexOf(0xF0));
+                Assert.Equal(1, reader.IndexOf(0x90));
+                Assert.Equal(2, reader.IndexOf(0x8D));
+                Assert.Equal(-1, reader.IndexOf(0x8C));
+                Assert.Equal(-1, reader.IndexOf(0));
+                Assert.Equal(-1, reader.IndexOf(0xff));
+            }
+        }
     }
 }

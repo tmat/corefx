@@ -151,6 +151,38 @@ namespace System.Reflection
             }
         }
 
+        public unsafe static int CodePointToUTF8(int codePoint, byte* utf8)
+        {
+            Debug.Assert(codePoint >= 0);
+
+            if (codePoint < 0x80)
+            {
+                utf8[0] = (byte)codePoint;
+                return 1;
+            }
+
+            if (codePoint < 0x800)
+            {
+                utf8[0] = (byte)(((codePoint >> 6) & 0x1F) | 0xC0);
+                utf8[1] = (byte)((codePoint & 0x3F) | 0x80);
+                return 2;
+            }
+
+            if (codePoint < 0x10000)
+            {
+                utf8[0] = (byte)(((codePoint >> 12) & 0xF) | 0xE0);
+                utf8[1] = (byte)(((codePoint >> 6) & 0x3F) | 0x80);
+                utf8[2] = (byte)((codePoint & 0x3F) | 0x80);
+                return 3;
+            }
+
+            utf8[0] = (byte)(((codePoint >> 18) & 0x7) | 0xF0);
+            utf8[1] = (byte)(((codePoint >> 12) & 0x3F) | 0x80);
+            utf8[2] = (byte)(((codePoint >> 6) & 0x3F) | 0x80);
+            utf8[3] = (byte)((codePoint & 0x3F) | 0x80);
+            return 4;
+        }
+
         // TODO: Use UTF8Encoding https://github.com/dotnet/corefx/issues/2217
         public static void WriteUTF8(this byte[] buffer, int start, char* charPtr, int charCount, int byteCount, bool allowUnpairedSurrogates)
         {

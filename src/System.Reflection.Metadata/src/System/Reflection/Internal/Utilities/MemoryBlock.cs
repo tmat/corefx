@@ -515,7 +515,11 @@ namespace System.Reflection.Internal
         internal int IndexOf(byte b, int start)
         {
             CheckBounds(start, 0);
+            return IndexOfUnchecked(b, start);
+        }
 
+        internal int IndexOfUnchecked(byte b, int start)
+        {
             byte* p = Pointer + start;
             byte* end = Pointer + Length;
             while (p < end)
@@ -529,6 +533,37 @@ namespace System.Reflection.Internal
             }
 
             return -1;
+        }
+
+        internal unsafe int IndexOfUTF8Unchecked(int codePoint, int start)
+        {
+            if (codePoint < 0x80)
+            {
+                return IndexOfUnchecked((byte)codePoint, start);
+            }
+
+            byte* bytes = stackalloc byte[4];
+            int byteCount = BlobUtilities.CodePointToUTF8(codePoint, bytes);
+            Debug.Assert(byteCount >= 2 && byteCount <= 4);
+
+        next:
+            int i = IndexOfUnchecked(bytes[0], start);
+            if (i < 0 || i + byteCount > Length)
+            {
+                return -1;
+            }
+
+            for (int j = 1; j < byteCount; j++)
+            {
+                if (Pointer[i + j] != bytes[j])
+                {
+                    start = i + 1;
+                    Debug.Assert(start < Length);
+                    goto next;
+                }
+            }
+
+            return i;
         }
 
         // same as Array.BinarySearch, but without using IComparer

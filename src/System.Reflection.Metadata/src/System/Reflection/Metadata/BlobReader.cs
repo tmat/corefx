@@ -336,6 +336,42 @@ namespace System.Reflection.Metadata
         }
 
         /// <summary>
+        /// Finds specified byte in bytes following the current position.
+        /// </summary>
+        /// <returns>
+        /// Index relative to the current position, or -1 if the byte is not found in the blob following the current position.
+        /// </returns>
+        /// <remarks>
+        /// Doesn't change the current position.
+        /// </remarks>
+        public int IndexOf(byte value)
+        {
+            return _block.IndexOfUnchecked(value, Offset);
+        }
+
+        /// <summary>
+        /// Finds specified Unicode code point in an UTF8-encoded string following the current position.
+        /// </summary>
+        /// <param name="codePoint">Unicode code point within range [0, 0x10FFFF]</param>
+        /// <returns>
+        /// Index of the <paramref name="codePoint"/> relative to the current position, 
+        /// or -1 if the code point is not found in the blob following the current position.
+        /// </returns>
+        /// <remarks>
+        /// Doesn't change the current position.
+        /// </remarks>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="codePoint"/> is invalid.</exception>
+        public int IndexOfUTF8(int codePoint)
+        {
+            if (codePoint < 0 || codePoint > 0x10ffff)
+            {
+                Throw.ArgumentOutOfRange(nameof(codePoint));
+            }
+
+            return _block.IndexOfUTF8Unchecked(codePoint, Offset);
+        }
+
+        /// <summary>
         /// Reads UTF8 encoded string starting at the current position. 
         /// </summary>
         /// <param name="byteCount">The number of bytes to read.</param>

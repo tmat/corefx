@@ -102,15 +102,11 @@ namespace System.Reflection.PortableExecutable
 
             _sectionHeaders = this.ReadSectionHeaders(ref reader);
 
-            if (!isCoffOnly)
+            if (!isCoffOnly && TryCalculateCorHeaderOffset(out int corHeaderOffset))
             {
-                int offset;
-                if (TryCalculateCorHeaderOffset(actualSize, out offset))
-                {
-                    _corHeaderStartOffset = offset;
-                    reader.Seek(offset);
-                    _corHeader = new CorHeader(ref reader);
-                }
+                _corHeaderStartOffset = corHeaderOffset;
+                reader.Seek(corHeaderOffset);
+                _corHeader = new CorHeader(ref reader);
             }
 
             CalculateMetadataLocation(actualSize, out _metadataStartOffset, out _metadataSize);
@@ -230,7 +226,7 @@ namespace System.Reflection.PortableExecutable
             }
         }
 
-        private bool TryCalculateCorHeaderOffset(long peStreamSize, out int startOffset)
+        private bool TryCalculateCorHeaderOffset(out int startOffset)
         {
             if (!TryGetDirectoryOffset(_peHeader.CorHeaderTableDirectory, out startOffset, canCrossSectionBoundary: false))
             {
@@ -239,7 +235,7 @@ namespace System.Reflection.PortableExecutable
             }
 
             int length = _peHeader.CorHeaderTableDirectory.Size;
-            if (length < COR20Constants.SizeOfCorHeader)
+            if (length < ManagedTextSection.CorHeaderSize)
             {
                 throw new BadImageFormatException(SR.InvalidCorHeaderSize);
             }

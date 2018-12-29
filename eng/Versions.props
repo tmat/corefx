@@ -24,5 +24,8 @@
     <MicrosoftDotNetCoreFxTestingPackageVersion>1.0.0-beta.18619.2</MicrosoftDotNetCoreFxTestingPackageVersion>
     <MicrosoftDotNetBuildTasksConfigurationPackageVersion>1.0.0-beta.18619.2</MicrosoftDotNetBuildTasksConfigurationPackageVersion>
     <MicrosoftDotNetBuildTasksFeedPackageVersion>2.2.0-beta.18619.2</MicrosoftDotNetBuildTasksFeedPackageVersion>
+
+     <!-- Using a private build of Microsoft.Net.Test.SDK to work around issue https://github.com/Microsoft/vstest/issues/1764 -->	
+    <MicrosoftNETTestSdkVersion>15.9.0-dev2</MicrosoftNETTestSdkVersion>
   </PropertyGroup>
 </Project>

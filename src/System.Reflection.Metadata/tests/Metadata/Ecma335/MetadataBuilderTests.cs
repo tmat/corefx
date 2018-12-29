@@ -3,8 +3,11 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Reflection.Metadata.Tests;
+using System.Reflection.PortableExecutable;
+using System.Security.Cryptography;
 using Xunit;
 
 namespace System.Reflection.Metadata.Ecma335.Tests
@@ -211,7 +214,7 @@ namespace System.Reflection.Metadata.Ecma335.Tests
             var builder = new MetadataBuilder();
 
             var badHandleKind = CustomAttributeHandle.FromRowId(1);
-            
+
             Assert.Throws<ArgumentNullException>(() => builder.AddAssembly(default(StringHandle), null, default(StringHandle), default(BlobHandle), 0, 0));
             Assert.Throws<ArgumentNullException>(() => builder.AddAssemblyReference(default(StringHandle), null, default(StringHandle), default(BlobHandle), 0, default(BlobHandle)));
             AssertExtensions.Throws<ArgumentException>(null, () => builder.AddTypeDefinition(0, default(StringHandle), default(StringHandle), badHandleKind, default(FieldDefinitionHandle), default(MethodDefinitionHandle)));
@@ -355,10 +358,10 @@ namespace System.Reflection.Metadata.Ecma335.Tests
             var heaps = new BlobBuilder();
             mdBuilder.WriteHeapsTo(heaps, serialized.StringHeap);
 
-            AssertEx.Equal(new byte[] 
+            AssertEx.Equal(new byte[]
             {
                 // #String
-                0x00, 
+                0x00,
                 0x66, 0x6F, 0x6F, 0x00,
                 0x00, 0x00, 0x00,
                 // #US
@@ -399,7 +402,7 @@ namespace System.Reflection.Metadata.Ecma335.Tests
                 0x00, 0x00, 0x00, 0x00,
                 // #US
                 0x00, 0x00, 0x00, 0x00,
-                
+
                 0x00,              // 0x00
 
                 // ""
@@ -502,7 +505,7 @@ namespace System.Reflection.Metadata.Ecma335.Tests
         {
             var mdBuilder = new MetadataBuilder(
                 userStringHeapStartOffset: 0x10,
-                stringHeapStartOffset: 0x20, 
+                stringHeapStartOffset: 0x20,
                 blobHeapStartOffset: 0x30,
                 guidHeapStartOffset: 0x40);
 
@@ -895,6 +898,109 @@ namespace System.Reflection.Metadata.Ecma335.Tests
             builder.AddStateMachineMethod(MetadataTokens.MethodDefinitionHandle(1), default(MethodDefinitionHandle));
             builder.AddStateMachineMethod(MetadataTokens.MethodDefinitionHandle(1), default(MethodDefinitionHandle));
             Assert.Throws<InvalidOperationException>(() => builder.ValidateOrder());
+        }
+
+        [Fact]
+        public void CreateFromMetadataReader()
+        {
+            byte[] computeHash(HashAlgorithmName algorithmName, IEnumerable<Blob> blobs)
+            {
+                using (var incrementalHash = IncrementalHash.CreateHash(algorithmName))
+                {
+                    foreach (var blob in blobs)
+                    {
+                        incrementalHash.AppendData(blob.GetBytes());
+                    }
+
+                    return incrementalHash.GetHashAndReset();
+                }
+            }
+
+            bool isDeterministic = true;
+            var peReader = PEImageCache.GetPEReader(Misc.Deterministic);
+            var mdReader = peReader.GetMetadataReader();
+            var textSectionIndex = peReader.PEHeaders.IndexOfSection(".text");
+            var textSection = peReader.PEHeaders.SectionHeaders[textSectionIndex];
+            var textSectionData = peReader.GetSectionData(".text");
+            var nativeResources = peReader.GetSectionData(".rsrc");
+            var corHeader = peReader.PEHeaders.CorHeader;
+
+            // Assume IL stream starts at the end of COR header and ends at the beginning of the metadata block:
+            int methodBodyStreamRva = peReader.PEHeaders.PEHeader.CorHeaderTableDirectory.RelativeVirtualAddress + ManagedTextSection.CorHeaderSize;
+            int methodBodyStreamLength = corHeader.MetadataDirectory.RelativeVirtualAddress - methodBodyStreamRva;
+
+            // Assume mapped field data stream starts at the min RVA stored in FieldRva table and ends at the end of .text section:
+            int mappedFieldDataStreamRva = mdReader.FieldRvaTable.FindMinimalRva();
+            int mappedFieldDataStreamLength;
+            if (mappedFieldDataStreamRva == -1)
+            {
+                mappedFieldDataStreamLength = 0;
+            }
+            else if (mappedFieldDataStreamRva > textSection.VirtualAddress && 
+                     mappedFieldDataStreamRva < textSection.VirtualAddress + textSectionData.Length)
+            {
+                mappedFieldDataStreamLength = textSection.VirtualAddress + textSectionData.Length - mappedFieldDataStreamRva;
+            }
+            else
+            {
+                // TOOD: 
+                throw new BadImageFormatException("Invalid field RVA");
+            }
+
+            var peHeaderBuilder = PEHeaderBuilder.CreateFrom(peReader.PEHeaders.PEHeader, peReader.PEHeaders.CoffHeader);
+            var metadataBuilder = MetadataBuilder.CreateFrom(mdReader, methodBodyStreamRva, mappedFieldDataStreamRva);
+
+            var ilBuilder = new BlobBuilder(methodBodyStreamLength);
+            var mappedFieldDataBuilder = new BlobBuilder(mappedFieldDataStreamLength);
+            var managedResourcesBuilder = new BlobBuilder(corHeader.ResourcesDirectory.Size);
+
+            var importTable = peReader.PEHeaders.PEHeader.ImportTableDirectory;
+
+            unsafe
+            {
+                byte* rvaToTextSectionPoiner(int rva)
+                    => textSectionData.Pointer + rva - textSection.VirtualAddress;
+
+                ilBuilder.WriteBytes(rvaToTextSectionPoiner(methodBodyStreamRva), methodBodyStreamLength);
+                managedResourcesBuilder.WriteBytes(rvaToTextSectionPoiner(corHeader.ResourcesDirectory.RelativeVirtualAddress), corHeader.ResourcesDirectory.Size);
+            }
+
+            var idProvider = isDeterministic ?
+                new Func<IEnumerable<Blob>, BlobContentId>(content => BlobContentId.FromHash(computeHash(HashAlgorithmName.SHA1, content))) :
+                null;
+
+            // TODO: support extra sections
+            var peBuilder = new ManagedPEBuilder(
+              peHeaderBuilder,
+              new MetadataRootBuilder(metadataBuilder, mdReader.MetadataVersion),
+              ilBuilder,
+              mappedFieldDataBuilder,
+              managedResourcesBuilder,
+              new BlobResourceSectionBuilder(nativeResources),
+              DebugDirectoryBuilder.CreateFrom(peReader),
+              corHeader.StrongNameSignatureDirectory.Size,
+              MetadataTokens.MethodDefinitionHandle(corHeader.EntryPointTokenOrRelativeVirtualAddress),
+              corHeader.Flags,
+              idProvider);
+
+            var builder = new BlobBuilder();
+            peBuilder.Serialize(builder);
+        }
+
+        private sealed class BlobResourceSectionBuilder : ResourceSectionBuilder
+        {
+            private readonly PEMemoryBlock _nativeResourcesSection;
+
+            public BlobResourceSectionBuilder(PEMemoryBlock nativeResourcesSection)
+            {
+                _nativeResourcesSection = nativeResourcesSection;
+            }
+
+            protected internal override unsafe void Serialize(BlobBuilder builder, SectionLocation location)
+            {
+                // TODO: relocations?
+                builder.WriteBytes(_nativeResourcesSection.Pointer, _nativeResourcesSection.Length);
+            }
         }
     }
 }

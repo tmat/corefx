@@ -976,7 +976,7 @@ namespace System.Reflection.Metadata.Ecma335.Tests
               ilBuilder,
               mappedFieldDataBuilder,
               managedResourcesBuilder,
-              new BlobResourceSectionBuilder(nativeResources),
+              (nativeResources.Length > 0) ? new BlobResourceSectionBuilder(nativeResources) : null,
               DebugDirectoryBuilder.CreateFrom(peReader),
               corHeader.StrongNameSignatureDirectory.Size,
               MetadataTokens.MethodDefinitionHandle(corHeader.EntryPointTokenOrRelativeVirtualAddress),

@@ -1904,7 +1904,7 @@ namespace System.Reflection.Metadata.Ecma335
         {
             if (NumberOfRows == 0)
             {
-                return 0;
+                return -1;
             }
 
             int result = int.MaxValue;
